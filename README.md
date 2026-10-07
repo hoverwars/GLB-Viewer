@@ -1,3 +1,3 @@
 # GLB Viewer
 
-Projet visant à extraire le contenu d'un fichier GLB. 
+GLB file viewer coded in C++ with OpenGL and GLFW
