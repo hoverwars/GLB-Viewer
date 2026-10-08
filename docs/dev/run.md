@@ -1,3 +1,5 @@
 # How to run the project ? 
 
-Basic command: `g++ -I..\include\ glad.c main.cpp -L..\libs\ -lglfw3 -lgdi32; ./a.exe; rm .\a.exe`
+Use the command `make` to run the project. 
+
+> Note that on windows, the developper should have `<git_path>/usr/bin` in its PATH variable in order to be able to run all linux commands.
