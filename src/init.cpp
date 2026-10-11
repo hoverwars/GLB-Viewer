@@ -6,7 +6,6 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "init.h"
-#include <iostream>
 
 using namespace std;
 

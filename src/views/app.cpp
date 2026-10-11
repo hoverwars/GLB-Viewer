@@ -4,10 +4,11 @@
 #include "app.h"
 #include "imgui/imgui.h"
 #include "../utils/darkStyle.h"
+#include "../utils/logs.h"
 #include "../models/position.h"
 
 App::App(GLFWwindow* window) : _window(window), _leftMenu(new LeftMenu(window)), _scene(new Scene(window))
-{ 
+{
     ImGui::PushStyleColor(ImGuiCol_WindowBg, primaryBgColor);
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, primaryBgColor);
     ImGui::PushStyleColor(ImGuiCol_TitleBg, secondaryBgColor);
@@ -15,6 +16,7 @@ App::App(GLFWwindow* window) : _window(window), _leftMenu(new LeftMenu(window)),
     
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, primaryColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, primaryColor);
+    logInfo("Application style setup.");
 }
 
 App::~App()

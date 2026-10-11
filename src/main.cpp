@@ -1,4 +1,3 @@
-#include <iostream>
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 
@@ -8,24 +7,26 @@
 
 #include "init.h"
 #include "views/app.h"
+#include "utils/logs.h"
 
-using namespace std;
 
 int main()
 {
+    logInfo("Starting application...");
     GLFWwindow* window = initializeGlfwWindow();
     if (window == NULL)
     {
-        cout << "Failed to create GLFW window" << endl;
+        logError("Failed to create GLFW window.");
         glfwTerminate();
         return -1;
     }
     
     glfwMakeContextCurrent(window);
+    logInfo("Widow opened succesfully.");
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        logError("Failed to initialize GLAD.");
         glfwTerminate();
         return -1;
     }
@@ -34,6 +35,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, onWindowResize); // handle resize
 
     setupImGui(window);
+    logInfo("UI framework ready.");
 
     App app = App(window);
 
@@ -54,6 +56,7 @@ int main()
         glfwSwapBuffers(window);
     }
     
+    logInfo("Closing application...");
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

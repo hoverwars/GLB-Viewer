@@ -1,18 +1,22 @@
-#include <iostream>
 #include <format>
 #include <string>
 #include <glad/glad.h>
 
 #include "scene.h"
 #include "../../utils/darkStyle.h"
+#include "../../utils/logs.h"
 
 Scene::Scene(GLFWwindow* window) : _window(window)
-{ 
+{
+    logInfo("Starting scene setup...");
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_ebo);
+    logInfo("Buffers ready.");
     initShaderProgram();
+    logInfo("Initialized shader programs");
+    logInfo("Succcesfully setup scene rendering");
 }
 
 void Scene::render(Position scenePos)
@@ -88,7 +92,8 @@ void Scene::initShaderProgram()
     if(!success)
     {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        logError("Error while compiling vertex shader.");
+        logError(infoLog);
     }
 
     //  Load the fragment shader
@@ -112,7 +117,8 @@ void Scene::initShaderProgram()
     if(!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        logError("Error while compiling fragment shader.");
+        logError(infoLog);
     }
 
     // Shader program
@@ -127,7 +133,8 @@ void Scene::initShaderProgram()
     if(!success) 
     {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
+        logError("Error while linking shader program.");
+        logError(infoLog);
     }
 
     glDeleteShader(vertexShader);
