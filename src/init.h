@@ -14,4 +14,6 @@ void onWindowResize(GLFWwindow* window, int width, int height);
 
 void setupImGui(GLFWwindow* window);
 
+void setupInitialViewport(GLFWwindow* window);
+
 #endif

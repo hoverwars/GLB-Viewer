@@ -40,3 +40,11 @@ void setupImGui(GLFWwindow* window)
     ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 }
+
+void setupInitialViewport(GLFWwindow* window)
+{
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    glfwSwapInterval(1);
+}

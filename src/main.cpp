@@ -7,6 +7,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "init.h"
+#include "views/app.h"
 
 using namespace std;
 
@@ -28,30 +29,25 @@ int main()
         glfwTerminate();
         return -1;
     }
-    
-    glViewport(0, 0, 800, 600);
-    glfwSwapInterval(1);
+
+    setupInitialViewport(window);
     glfwSetFramebufferSizeCallback(window, onWindowResize); // handle resize
 
     setupImGui(window);
 
+    App app = App(window);
+
     while(!glfwWindowShouldClose(window))
     {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
         glfwPollEvents();
         
-        // (Your code calls glfwPollEvents()
-        // ...
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow(); // Show demo window! :)
 
-        // Rendering
-        // (Your code clears your framebuffer, renders your other stuff etc.)
+        // Rendering here
+        app.render();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         // (Your code calls glfwSwapBuffers() etc.)
