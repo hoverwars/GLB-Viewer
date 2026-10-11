@@ -17,7 +17,7 @@ $(TARGET): $(OBJECTS)
 
 obj/%.o: src/%.cpp
 	@mkdir -p $(dir $@)
-	g++ -Wall $(INCLUDES) -c $< -o $@
+	g++ -std=c++20 -Wall $(INCLUDES) -c $< -o $@
 
 obj/%.o: src/%.c
 	@mkdir -p $(dir $@)

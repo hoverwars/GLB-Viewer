@@ -3,6 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "../../models/position.h"
+
 class LeftMenu
 {
 private:
@@ -10,7 +12,7 @@ private:
 
 public:
     LeftMenu(GLFWwindow* window);
-    void render();
+    Position render();
 };
 
 #endif

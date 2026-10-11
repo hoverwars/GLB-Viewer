@@ -1,12 +1,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "imgui/imgui.h"
-#include "menus/leftMenu.h"
-#include "../utils/darkStyle.h"
 #include "app.h"
+#include "imgui/imgui.h"
+#include "../utils/darkStyle.h"
+#include "../models/position.h"
 
-App::App(GLFWwindow* window) : _window(window), _leftMenu(new LeftMenu(window))
+App::App(GLFWwindow* window) : _window(window), _leftMenu(new LeftMenu(window)), _scene(new Scene(window))
 { 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, primaryBgColor);
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, primaryBgColor);
@@ -24,13 +24,22 @@ App::~App()
 
 void App::render()
 {
+    int width, height;
+    glfwGetFramebufferSize(_window, &width, &height);
+
     glClearColor(0.23f, 0.23f, 0.23f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //ImGui::ShowStyleEditor();
 
     _renderHeaderMenu();
-    _leftMenu->render();
+    Position pos = _leftMenu->render();
+    _scene->render({
+        pos.x + pos.width + 5,
+        5,  // Use openGL coordinate, where 0, 0 is bottom left, not up right.
+        width - pos.x - pos.width - 10,
+        height - 30
+    });
 }
 
 void App::_renderHeaderMenu()
