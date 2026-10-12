@@ -20,5 +20,5 @@ Position LeftMenu::render()
     ImVec2 size = ImGui::GetWindowSize();
     ImGui::End();
 
-    return { 5, 25, size.x, size.y };
+    return { 5, 25, static_cast<int>(size.x), static_cast<int>(size.y) };
 }

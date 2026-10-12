@@ -11,7 +11,7 @@ std::string getFormattedTime()
 
     time (&rawtime);
     timeinfo = localtime (&rawtime);
-    strftime(buffer, 30, "%T", timeinfo);
+    strftime(buffer, 30, "%H:%M:%S", timeinfo);
 
     return std::string(buffer);
 }
