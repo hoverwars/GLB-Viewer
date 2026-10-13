@@ -1,15 +1,13 @@
 #include "imgui/imgui.h"
 #include "leftMenu.h"
 
-LeftMenu::LeftMenu(GLFWwindow* window) : _window(window)
-{ }
+#include "../../controllers/windowContextProvider.h"
 
-Position LeftMenu::render()
+Region2D LeftMenu::render()
 {
-    int width, height;
-    glfwGetFramebufferSize(_window, &width, &height);
+    Size2D fbSize = WindowContextProvider::getInstance()->getFramebufferSize();
 
-    int windowHeight = height - 30;
+    int windowHeight = fbSize.height - 30;
     ImGui::SetNextWindowPos(ImVec2(5, 25));
     ImGui::SetNextWindowSizeConstraints(
         ImVec2(200, windowHeight),

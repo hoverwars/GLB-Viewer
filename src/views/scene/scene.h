@@ -9,16 +9,16 @@
 class Scene
 {
 private:
-    GLFWwindow* _window;
-    Shader _shader;
+    Shader* _shader;
     unsigned int _vbo; // Vertex buffer object
     unsigned int _vao; // Vertex array object
     unsigned int _ebo; // Element buffer object
     void renderContent();
 
 public:
-    Scene(GLFWwindow* window);
-    void render(Position scenePos);
+    Scene();
+    ~Scene();
+    void render(Region2D scenePos);
 
 };
 

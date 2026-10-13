@@ -7,12 +7,8 @@
 
 class LeftMenu
 {
-private:
-    GLFWwindow* _window;
-
 public:
-    LeftMenu(GLFWwindow* window);
-    Position render();
+    Region2D render();
 };
 
 #endif

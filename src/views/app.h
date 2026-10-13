@@ -8,14 +8,13 @@
 class App
 {
 private:
-    GLFWwindow* _window;
     LeftMenu* _leftMenu;
     Scene* _scene;
     bool _onQuitClicked = false;
 
     void _renderHeaderMenu();
 public:
-    App(GLFWwindow* window);
+    App();
     ~App();
     void render();
 };

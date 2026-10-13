@@ -6,10 +6,16 @@
 #include "scene.h"
 #include "../../utils/darkStyle.h"
 #include "../../utils/logs.h"
+#include "../../controllers/windowContextProvider.h"
 
-Scene::Scene(GLFWwindow* window) : _window(window), _shader("resource/shaders/default_vertex_shader.vert", "resource/shaders/default_fragment_shader.frag")
+Scene::Scene()
 {
     logInfo("Starting scene setup...");
+    _shader = new Shader(
+        "resource/shaders/default_vertex_shader.vert", 
+        "resource/shaders/default_fragment_shader.frag"
+    );
+    
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);
@@ -17,11 +23,15 @@ Scene::Scene(GLFWwindow* window) : _window(window), _shader("resource/shaders/de
     logInfo("Buffers ready.");
 }
 
-void Scene::render(Position scenePos)
+Scene::~Scene()
+{
+    delete _shader;
+}
+
+void Scene::render(Region2D scenePos)
 {
     // Postulate: the current viewport takes all the window.
-    int oldVpWidth, oldVpHeight;
-    glfwGetFramebufferSize(_window, &oldVpWidth, &oldVpHeight);
+    Size2D oldVpSize = WindowContextProvider::getInstance()->getFramebufferSize();
 
     glViewport(scenePos.x, scenePos.y, scenePos.width, scenePos.height);
     glEnable(GL_SCISSOR_TEST);
@@ -33,7 +43,7 @@ void Scene::render(Position scenePos)
     renderContent();
 
     glDisable(GL_SCISSOR_TEST);
-    glViewport(0, 0, oldVpWidth, oldVpHeight);
+    glViewport(0, 0, oldVpSize.width, oldVpSize.height);
 }
 
 void Scene::renderContent()
@@ -65,7 +75,7 @@ void Scene::renderContent()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * (sizeof(float))));
     glEnableVertexAttribArray(1);
     
-    _shader.use();
+    _shader->use();
     glBindVertexArray(_vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

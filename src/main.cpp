@@ -8,6 +8,7 @@
 #include "init.h"
 #include "views/app.h"
 #include "utils/logs.h"
+#include "controllers/windowContextProvider.h"
 
 
 int main()
@@ -37,7 +38,9 @@ int main()
     setupImGui(window);
     logInfo("UI framework ready.");
 
-    App app = App(window);
+    WindowContextProvider windowContextProvider = WindowContextProvider(window);
+    WindowContextProvider::setInstance(&windowContextProvider);
+    App app = App();
 
     while(!glfwWindowShouldClose(window))
     {
