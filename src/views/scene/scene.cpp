@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "scene.h"
+#include "imgui/imgui.h"
 #include "../../utils/darkStyle.h"
 #include "../../utils/logs.h"
 #include "../../controllers/windowContextProvider.h"
@@ -15,7 +16,9 @@ Scene::Scene()
         "resource/shaders/default_vertex_shader.vert", 
         "resource/shaders/default_fragment_shader.frag"
     );
-    
+    _framebuffer = new Framebuffer();
+    _renderer = [this]() { this->renderContent(); };
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);
@@ -26,28 +29,44 @@ Scene::Scene()
 Scene::~Scene()
 {
     delete _shader;
+    delete _framebuffer;
 }
 
 void Scene::render(Region2D scenePos)
 {
-    // Postulate: the current viewport takes all the window.
-    Size2D oldVpSize = WindowContextProvider::getInstance()->getFramebufferSize();
+    Size2D fbSize = WindowContextProvider::getInstance()->getFramebufferSize();
 
-    glViewport(scenePos.x, scenePos.y, scenePos.width, scenePos.height);
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(scenePos.x, scenePos.y, scenePos.width, scenePos.height);
+    int windowHeight = fbSize.height - 30;
+    
+    ImGui::SetNextWindowPos(ImVec2(scenePos.x, 25));
+    ImGui::SetNextWindowSize(ImVec2(scenePos.width, windowHeight));
+    ImGui::Begin("Scene", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-    glClearColor(tertiaryBgColor.x, tertiaryBgColor.y, tertiaryBgColor.z, tertiaryBgColor.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    ImVec2 spaceAvailablePos = ImGui::GetCursorScreenPos();
+    ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
+    
+    _framebuffer->renderToFramebuffer(
+        spaceAvailable.x,
+        spaceAvailable.y,
+        _renderer
+    );
 
-    renderContent();
+    ImGui::GetWindowDrawList()->AddImage(
+        _framebuffer->getTextureId(), 
+        spaceAvailablePos, 
+        ImVec2(spaceAvailablePos.x + spaceAvailable.x, spaceAvailablePos.y + spaceAvailable.y), 
+        ImVec2(0, 1), 
+        ImVec2(1, 0)
+    );
 
-    glDisable(GL_SCISSOR_TEST);
-    glViewport(0, 0, oldVpSize.width, oldVpSize.height);
+    ImGui::End();
 }
 
 void Scene::renderContent()
 {
+    glClearColor(tertiaryBgColor.x, tertiaryBgColor.y, tertiaryBgColor.z, tertiaryBgColor.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     float timeValue = glfwGetTime();
     float loc = (sin(timeValue) / 3.0f);
     float vertices[] = {
@@ -76,7 +95,6 @@ void Scene::renderContent()
     glEnableVertexAttribArray(1);
     
     _shader->use();
-    glBindVertexArray(_vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
