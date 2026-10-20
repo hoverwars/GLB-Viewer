@@ -2,6 +2,9 @@
 #include <string>
 #include <cmath>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "scene.h"
 #include "imgui/imgui.h"
@@ -23,6 +26,7 @@ Scene::Scene()
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_ebo);
+    glEnable(GL_DEPTH_TEST);
     logInfo("Buffers ready.");
 }
 
@@ -65,22 +69,28 @@ void Scene::render(Region2D scenePos)
 void Scene::renderContent()
 {
     glClearColor(tertiaryBgColor.x, tertiaryBgColor.y, tertiaryBgColor.z, tertiaryBgColor.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float timeValue = glfwGetTime();
-    float loc = (sin(timeValue) / 3.0f);
+    //float timeValue = glfwGetTime();
+    //float loc = (sin(timeValue) / 3.0f);
     float vertices[] = {
-        loc,  loc, 0.0f, 1.0f, 0.0f, 0.0f,  // top right
-        loc, -loc, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-        -loc, -loc, 0.0f, 0.0f, 0.0f, 1.0f,  // bottom left
-        -loc,  loc, 0.0f, 1.0f, 0.0f, 0.0f   // top left 
-    };
-    unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
+        // bottom face
+        0.0f, 0.66f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 0.66f, 1.0f, 1.0f, 1.0f
+    };  
+
+    // From the array of vertices + colors, build some triangles.
+    unsigned int indices[] = { 
+        0, 1, 2,
+        0, 1, 3,
+        1, 2, 3,
+        2, 0, 3
     };
     
     // Bind our buffers
+    glEnable(GL_DEPTH_TEST);
     glBindVertexArray(_vao);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -94,7 +104,27 @@ void Scene::renderContent()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * (sizeof(float))));
     glEnableVertexAttribArray(1);
     
+    // MVP
+    glm::mat4 model = glm::mat4(1.0f);
+    //model = glm::rotate(model, glm::radians(-20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    //model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
+    glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
+    
+    // Camera
+    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    glUniformMatrix4fv(_shader->getUniformLocation("view"), 1, GL_FALSE, glm::value_ptr(view));
+
+    glm::mat4 projection;
+    // projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+    ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
+    projection = glm::perspective(glm::radians(45.0f), spaceAvailable.x / spaceAvailable.y, 0.1f, 100.0f);
+    glUniformMatrix4fv(_shader->getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
     _shader->use();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

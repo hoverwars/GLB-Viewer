@@ -23,7 +23,7 @@ int main()
     }
     
     glfwMakeContextCurrent(window);
-    logInfo("Widow opened succesfully.");
+    logInfo("Window opened succesfully.");
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -55,7 +55,7 @@ int main()
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        // (Your code calls glfwSwapBuffers() etc.)
+
         glfwSwapBuffers(window);
     }
     
