@@ -1,14 +1,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
 
 #include "app.h"
-#include "imgui/imgui.h"
 #include "../utils/darkStyle.h"
 #include "../utils/logs.h"
 #include "../models/position.h"
 #include "../controllers/windowContextProvider.h"
+#include "../controllers/glbFileHandler.h"
 
-App::App() : _leftMenu(new LeftMenu()), _scene(new Scene())
+App::App() : _leftMenu(new LeftMenu()), _scene(new Scene()), _fileBrowser()
 {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, primaryBgColor);
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, primaryBgColor);
@@ -18,6 +19,8 @@ App::App() : _leftMenu(new LeftMenu()), _scene(new Scene())
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, primaryColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, primaryColor);
     logInfo("Application style setup.");
+
+    GlbFileHandler::getInstance()->loadGlbFile("D:/dev/GLB-Viewer/resource/models/cube.glb");
 }
 
 App::~App()
@@ -49,9 +52,11 @@ void App::_renderHeaderMenu()
     bool result = ImGui::BeginMainMenuBar();
     if (!result) return;
 
+    bool onOpenFileClicked = false;
     if (ImGui::BeginMenu("Menu")) 
     {
-        ImGui::MenuItem("Open File", NULL, false, false);
+        if (ImGui::MenuItem("Open File", NULL))
+            onOpenFileClicked = true;
 
         ImGui::Separator();
         ImGui::MenuItem("Close application", NULL, &_onQuitClicked);
@@ -64,5 +69,15 @@ void App::_renderHeaderMenu()
     // Menu actions 
     if (this->_onQuitClicked) {
         WindowContextProvider::getInstance()->shouldClose(true);
+    }
+
+    if (onOpenFileClicked) {
+        ImGui::OpenPopup("Open File");
+    }
+
+    // Always show file dialog. This method will return if there is no popup existing with the same name
+    if (_fileBrowser.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(1080, 720), ".glb"))
+    {   
+        GlbFileHandler::getInstance()->loadGlbFile(_fileBrowser.selected_path);
     }
 }
