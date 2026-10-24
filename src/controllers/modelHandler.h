@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "../models/glbFile.h"
-#include "../models/model.h"
+#include "../models/glb/glbFile.h"
+#include "../models/glb/model.h"
 
 using namespace std;
 

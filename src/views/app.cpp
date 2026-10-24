@@ -20,7 +20,7 @@ App::App() : _leftMenu(new LeftMenu()), _scene(new Scene()), _fileBrowser()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, primaryColor);
     logInfo("Application style setup.");
 
-    GlbFileHandler::getInstance()->loadGlbFile("D:/dev/GLB-Viewer/resource/models/cube.glb");
+    GlbFileHandler::getInstance()->loadGlbFile("D:/dev/GLB-Viewer/resource/models/gun.glb");
 }
 
 App::~App()

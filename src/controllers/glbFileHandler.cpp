@@ -6,7 +6,7 @@
 
 #include "glbFileHandler.h"
 #include "../utils/logs.h"
-#include "../models/glbFile.h"
+#include "../models/glb/glbFile.h"
 #include "modelHandler.h"
 
 using namespace std;
