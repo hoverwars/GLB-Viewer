@@ -37,6 +37,52 @@ GlbFile::~GlbFile()
     // _rawBuffer yet cleared
 }
 
+vector<Node*> GlbFile::getNodes()
+{
+    vector<Node*> nodes;
+    for (json nodeDesc : _structure["nodes"])
+    {
+        string name = nodeDesc.value("name", "Node");
+        vector<int> childrenIds = nodeDesc.value("children", vector<int>{});
+        int meshId = nodeDesc.value("mesh", -1);
+        vector<float> rotation = nodeDesc.value("rotation", vector<float>{});
+        vector<float> scale = nodeDesc.value("scale", vector<float>{});
+        vector<float> translation = nodeDesc.value("translation", vector<float>{});
+
+        if (childrenIds.size() > 0)
+        {
+            vector<Node*> children = vector<Node*>();
+            
+            for (int childId : childrenIds)
+            {
+                children.push_back(nodes[childId]);
+            }
+
+            nodes.push_back(new Node(
+                name,
+                children,
+                rotation.size() != 4 ? glm::vec4(1.0f) : glm::vec4(rotation[0], rotation[1], rotation[2], rotation[3]),
+                scale.size() != 3 ? glm::vec3(1.0f) : glm::vec3(scale[0], scale[1], scale[2]),
+                translation.size() != 3 ? glm::vec3(1.0f) : glm::vec3(translation[0], translation[1], translation[2])
+            ));
+        }
+        else if (meshId != -1)
+        {
+            Mesh* mesh = _meshes[meshId];
+
+            nodes.push_back(new Node(
+                name,
+                mesh,
+                rotation.size() != 4 ? glm::vec4(1.0f) : glm::vec4(rotation[0], rotation[1], rotation[2], rotation[3]),
+                scale.size() != 3 ? glm::vec3(1.0f) : glm::vec3(scale[0], scale[1], scale[2]),
+                translation.size() != 3 ? glm::vec3(1.0f) : glm::vec3(translation[0], translation[1], translation[2])
+            ));
+        }
+    }
+
+    return nodes;
+}
+
 void GlbFile::parseBinary(unsigned char* binary, unsigned int length)
 {
     parseRawBuffers(binary);

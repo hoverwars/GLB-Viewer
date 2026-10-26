@@ -8,6 +8,8 @@
 #include "../models/position.h"
 #include "../controllers/windowContextProvider.h"
 #include "../controllers/glbFileHandler.h"
+#include "../controllers/nodeHandler.h"
+#include "../models/glb/glbFile.h"
 
 App::App() : _leftMenu(new LeftMenu()), _scene(new Scene()), _fileBrowser()
 {
@@ -20,7 +22,8 @@ App::App() : _leftMenu(new LeftMenu()), _scene(new Scene()), _fileBrowser()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, primaryColor);
     logInfo("Application style setup.");
 
-    GlbFileHandler::getInstance()->loadGlbFile("D:/dev/GLB-Viewer/resource/models/gun.glb");
+    GlbFile* file = GlbFileHandler::getInstance()->loadGlbFile("D:/dev/GLB-Viewer/resource/models/gun.glb");
+    NodeHandler::getInstance()->loadNodes(file);
 }
 
 App::~App()
@@ -78,6 +81,7 @@ void App::_renderHeaderMenu()
     // Always show file dialog. This method will return if there is no popup existing with the same name
     if (_fileBrowser.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(1080, 720), ".glb"))
     {   
-        GlbFileHandler::getInstance()->loadGlbFile(_fileBrowser.selected_path);
+        GlbFile* file = GlbFileHandler::getInstance()->loadGlbFile(_fileBrowser.selected_path);
+        NodeHandler::getInstance()->loadNodes(file);
     }
 }

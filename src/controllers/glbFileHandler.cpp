@@ -7,7 +7,6 @@
 #include "glbFileHandler.h"
 #include "../utils/logs.h"
 #include "../models/glb/glbFile.h"
-#include "modelHandler.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -24,14 +23,22 @@ GlbFileHandler* GlbFileHandler::getInstance()
     return GlbFileHandler::_instance;
 }
 
-void GlbFileHandler::loadGlbFile(string path)
+GlbFileHandler::~GlbFileHandler()
+{
+    for (GlbFile* file : _loadedFiles)
+    {
+        delete file;
+    }
+}
+
+GlbFile* GlbFileHandler::loadGlbFile(string path)
 {
     fstream glbFile(path, ios::in | ios::binary);
 
     if (!glbFile.is_open())
     {
         logError("Cannot open file at provided path: " + path);
-        return;
+        return nullptr;
     }
 
     uint32_t magic, version, length;
@@ -43,7 +50,7 @@ void GlbFileHandler::loadGlbFile(string path)
     if (version != 2)
     {
         logError(format("Cannot load provided model at path {0}. Unsupported GLTF version, {1} received, 2 expected.", path, version));
-        return;
+        return nullptr;
     }
 
     logInfo(format("Loading model located at {0}. GLB Version: {1}. Length: {2}", path, version, length));
@@ -78,11 +85,15 @@ void GlbFileHandler::loadGlbFile(string path)
 
             // According to the GLTF 2.0 specification, binary chunk must be the last chunk.
             parsedFile = new GlbFile(structure, chunkContent, chunkLength + 1);
-            ModelHandler::getInstance()->addBaseFile(parsedFile);
+            _loadedFiles.push_back(parsedFile);
+
+            return parsedFile;
         }
         else
         {
             logWarning("Unrecognized chunk type while reading model" + path);
         }
     }
+
+    return nullptr;
 }

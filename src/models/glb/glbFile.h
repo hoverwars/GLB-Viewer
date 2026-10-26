@@ -6,6 +6,7 @@
 
 #include "buffer/bufferView.h"
 #include "mesh.h"
+#include "node.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -36,6 +37,7 @@ private:
 public:
     GlbFile(json structure, unsigned char* binary, unsigned int length);
     ~GlbFile();
+    vector<Node*> getNodes();
 };
 
 #endif
