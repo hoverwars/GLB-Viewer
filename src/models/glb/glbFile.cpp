@@ -108,8 +108,10 @@ void GlbFile::parseAccessors()
         if (bufferView != nullptr)
         {
             bufferView->parse();
-            _buffers.push_back(bufferView);
         }
+
+        // To keep buffer indices, insert every buffer parsed, even if its a nullptr.
+        _buffers.push_back(bufferView);
     }
 }
 
@@ -144,7 +146,7 @@ void GlbFile::parseMeshes()
             // Safe cast here, because an error would mean that the file is malformed
             meshParts.push_back(new MeshPart(
                 (Vector3dBufferView<float>*) verticesBuffer,
-                (ScalarBufferView<short>*) indicesBuffer
+                (ScalarBufferView<unsigned short>*) indicesBuffer
             ));
         }
 

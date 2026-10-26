@@ -53,7 +53,7 @@ GlbFile* GlbFileHandler::loadGlbFile(string path)
         return nullptr;
     }
 
-    logInfo(format("Loading model located at {0}. GLB Version: {1}. Length: {2}", path, version, length));
+    logInfo(format("Loading model located at {0}. GLB VeSrsion: {1}. Length: {2}", path, version, length));
 
     json structure;
     GlbFile* parsedFile;

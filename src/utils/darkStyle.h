@@ -8,6 +8,7 @@ extern const ImVec4& primaryBgColor;
 extern const ImVec4& secondaryBgColor;
 extern const ImVec4& tertiaryBgColor;
 
-extern const ImVec4& shaderColor;
+extern const ImVec4& shaderFillColor;
+extern const ImVec4& shaderLineColor;
 
 #endif

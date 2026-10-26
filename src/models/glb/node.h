@@ -28,6 +28,7 @@ public:
     vector<Node*> getChildren();
     void setName(string name);
     string getName();
+    Mesh* getMesh();
 };
 
 #endif

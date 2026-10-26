@@ -7,11 +7,12 @@ class MeshPart
 {
 private:
     Vector3dBufferView<float>* _vertices;
-    ScalarBufferView<short>* _indices;
+    ScalarBufferView<unsigned short>* _indices;
 
 public:
-    MeshPart(Vector3dBufferView<float>* vertices, ScalarBufferView<short>* indices);
-    void render();
+    MeshPart(Vector3dBufferView<float>* vertices, ScalarBufferView<unsigned short>* indices);
+    Vector3dBufferView<float>* getVertices();
+    ScalarBufferView<unsigned short>* getIndices();
 };
 
 #endif

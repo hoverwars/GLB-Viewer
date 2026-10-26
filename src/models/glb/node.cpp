@@ -52,3 +52,8 @@ string Node::getName()
 {
     return _name;
 }
+
+Mesh* Node::getMesh()
+{
+    return _mesh;
+}

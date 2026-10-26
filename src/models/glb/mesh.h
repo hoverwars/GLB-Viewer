@@ -6,6 +6,8 @@
 
 #include "meshPart.h"
 
+using namespace std;
+
 class Mesh
 {
 private:
@@ -15,7 +17,7 @@ private:
 public:
     Mesh(string name, vector<MeshPart*> parts);
     ~Mesh();
-    void render();
+    vector<MeshPart*> getParts();
 };
 
 #endif

@@ -14,10 +14,7 @@ Mesh::~Mesh()
     }
 }
 
-void Mesh::render()
+vector<MeshPart*> Mesh::getParts()
 {
-    for (MeshPart* part : _parts)
-    {
-        part->render();
-    }
+    return _parts;
 }

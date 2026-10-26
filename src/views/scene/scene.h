@@ -7,6 +7,7 @@
 #include "../../models/position.h"
 #include "../../models/shader.h"
 #include "../../models/framebuffer.h"
+#include "../../models/glb/node.h"
 
 class Scene
 {
@@ -24,7 +25,7 @@ public:
     Scene();
     ~Scene();
     void render(Region2D scenePos);
-
+    void renderNode(Node* node);
 };
 
 #endif
