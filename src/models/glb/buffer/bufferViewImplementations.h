@@ -6,7 +6,7 @@
 #include "bufferView.h"
 
 template <typename T>
-class ScalarBufferView : BufferView<T, T>
+class ScalarBufferView : public BufferView<T, T>
 {
 private:
     virtual T buildContainer(T values[], unsigned __int8 length);
@@ -16,7 +16,7 @@ public:
 };
 
 template <typename T>
-class Vector3dBufferView : BufferView<glm::vec3, T>
+class Vector3dBufferView : public BufferView<glm::vec3, T>
 {
 private:
     virtual glm::vec3 buildContainer(T values[], unsigned __int8 length);

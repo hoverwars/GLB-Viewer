@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../models/glb/glbFile.h"
-#include "../models/glb/model.h"
+#include "../models/glb/mesh.h"
 
 using namespace std;
 
@@ -14,7 +14,6 @@ private:
     static ModelHandler* _instance;
 
     vector<GlbFile*> _glbBases;
-    vector<Model*> _models;
 
     ModelHandler();
 

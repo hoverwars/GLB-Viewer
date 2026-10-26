@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstring>
+#include <stdexcept>
 
 using namespace std;
 
@@ -12,13 +13,21 @@ template <> struct AjustedUInt<1> { using type = uint8_t;  };
 template <> struct AjustedUInt<2> { using type = uint16_t; };
 template <> struct AjustedUInt<4> { using type = uint32_t; };
 
+class ABufferView
+{
+public:
+    virtual ~ABufferView() = default;
+    virtual void parse() = 0;
+};
+
 template<typename ContainerType, typename BaseType> 
-class BufferView
+class BufferView : public ABufferView
 {
 private:
     unsigned char* _bytes;
     unsigned long _length;
     unsigned __int8 _containerSize;
+    bool _initialized;
     vector<ContainerType> _data;
 
     virtual BaseType buildBaseValue(unsigned char* bytes, short length);
@@ -29,8 +38,8 @@ protected:
     BufferView(unsigned char* bytes, unsigned long length);
     
 public:
-    inline vector<ContainerType> getData() { return _data; }
-    void parse();
+    vector<ContainerType> getData();
+    virtual void parse();
 };
 
 // Implementations
@@ -42,11 +51,23 @@ BufferView<ContainerType, BaseType>::BufferView(unsigned char* bytes, unsigned l
     _length = length;
     _containerSize = containerSize;
     _data = vector<ContainerType>();
+    _initialized = false;
 }
 
 template<typename ContainerType, typename BaseType>
 BufferView<ContainerType, BaseType>::BufferView(unsigned char* bytes, unsigned long length) : BufferView(bytes, length, 1)
 { }
+
+template<typename ContainerType, typename BaseType>
+vector<ContainerType> BufferView<ContainerType, BaseType>::getData()
+{
+    if (!_initialized)
+    {
+        throw runtime_error("Cannot get data from an uninitialied buffer view.");
+    }
+
+    return _data;
+}
 
 template<typename ContainerType, typename BaseType>
 BaseType BufferView<ContainerType, BaseType>::buildBaseValue(unsigned char* bytes, short length) 
@@ -67,7 +88,7 @@ BaseType BufferView<ContainerType, BaseType>::buildBaseValue(unsigned char* byte
 template<typename ContainerType, typename BaseType>
 void BufferView<ContainerType, BaseType>::parse()
 {
-    if (_bytes == nullptr || _length == 0) throw runtime_error("Cannot parse buffer. Buffer content uninitialized.");
+    if (_initialized) throw runtime_error("Cannot parse buffer. Buffer content yet initialized.");
 
     short baseTypeSize = sizeof(BaseType);
     int valueCount = _length / baseTypeSize;  // Number of values expected
@@ -77,7 +98,7 @@ void BufferView<ContainerType, BaseType>::parse()
     for (int cc = 0; cc < containerCount; cc++)
     {
         BaseType values[_containerSize];
-        for (int vc = 0; vc < valueCount; vc++)
+        for (int vc = 0; vc < _containerSize; vc++)
         {
             unsigned char rawValue[baseTypeSize];
             for (int bts = 0; bts < baseTypeSize; bts++)
@@ -94,6 +115,7 @@ void BufferView<ContainerType, BaseType>::parse()
 
     _bytes = nullptr;
     _length = 0;
+    _initialized = true;
 }
 
 #endif

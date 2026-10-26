@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "bufferViewlmplementations.h"
+#include "bufferViewImplementations.h"
 
 // Scalar implementations
 
