@@ -73,7 +73,7 @@ GlbFile* GlbFileHandler::loadGlbFile(string path)
             chunkContent[chunkLength] = '\0';
 
             structure = json::parse(chunkContent);
-            cout << structure.dump(2) << endl;
+            // cout << structure.dump(2) << endl;
 
             delete[] chunkContent;
         }

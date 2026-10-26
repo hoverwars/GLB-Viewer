@@ -13,6 +13,8 @@
 #include "../../controllers/windowContextProvider.h"
 #include "../../controllers/nodeHandler.h"
 
+using namespace std;
+
 Scene::Scene()
 {
     logInfo("Starting scene setup...");
@@ -28,6 +30,27 @@ Scene::Scene()
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_ebo);
     glEnable(GL_DEPTH_TEST);
+
+    _grid = vector<glm::vec3>();
+    for (float i = -100; i <= 100; i += 1)
+    {
+        _grid.push_back(glm::vec3(-100.0f, (float)i, 0.0f));
+        _grid.push_back(glm::vec3(100.0f, (float)i, 0.0f));
+
+        _grid.push_back(glm::vec3((float)i, -100.0f, 0.0f));
+        _grid.push_back(glm::vec3((float)i, 100.0f, 0.0f));
+    }
+
+    _subGrid = vector<glm::vec3>();
+    for (float i = -10; i <= 10; i += 1)
+    {
+        _subGrid.push_back(glm::vec3(-100.0f, (float)i*10, 0.0f));
+        _subGrid.push_back(glm::vec3(100.0f, (float)i*10, 0.0f));
+
+        _subGrid.push_back(glm::vec3((float)i*10, -100.0f, 0.0f));
+        _subGrid.push_back(glm::vec3((float)i*10, 100.0f, 0.0f));
+    }
+
     logInfo("Buffers ready.");
 }
 
@@ -74,52 +97,17 @@ void Scene::renderContent()
 
     _shader->use();
 
-    for (Node* node: NodeHandler::getInstance()->getNodes())
-    {
-        renderNode(node);
-    }
-
-    //float timeValue = glfwGetTime();
-    //float loc = (sin(timeValue) / 3.0f);
-    /*float vertices[] = {
-        // bottom face
-        0.0f, 0.66f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 0.66f, 1.0f, 1.0f, 1.0f
-    };  
-
-    // From the array of vertices + colors, build some triangles.
-    unsigned int indices[] = { 
-        0, 1, 2,
-        0, 1, 3,
-        1, 2, 3,
-        2, 0, 3
-    };
-    
-    // Bind our buffers
-    glBindVertexArray(_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
-    
-    // Specifying to OpenGL how to interpret our vertices
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);  
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * (sizeof(float))));
-    glEnableVertexAttribArray(1);
-    
     // MVP
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    // model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
     //model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
     glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
     
     // Camera
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, 50.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
     glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -128,11 +116,52 @@ void Scene::renderContent()
     glm::mat4 projection;
     // projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
     ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
-    projection = glm::perspective(glm::radians(45.0f), spaceAvailable.x / spaceAvailable.y, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
     glUniformMatrix4fv(_shader->getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);*/
+    renderGrid();
+
+    for (Node* node: NodeHandler::getInstance()->getNodes())
+    {
+        renderNode(node);
+    }
+}
+
+void Scene::renderGrid()
+{
+    // Draw grid
+    glLineWidth(1);
+    glBindVertexArray(_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, _grid.size() * sizeof(glm::vec3), _grid.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    glUniform3f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z);
+    glDrawArrays(GL_LINES, 0, _grid.size());
+    glBindVertexArray(0);
+
+    
+    // Draw subgrid 
+    glLineWidth(3);
+    glBindVertexArray(_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, _subGrid.size() * sizeof(glm::vec3), _subGrid.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    glUniform3f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z);
+    glDrawArrays(GL_LINES, 0, _subGrid.size());
+    glBindVertexArray(0);
+
+    // Reset line width
+    glLineWidth(1);
 }
 
 void Scene::renderNode(Node* node)
@@ -166,30 +195,7 @@ void Scene::renderNode(Node* node)
             // Specifying to OpenGL how to interpret our vertices
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
             glEnableVertexAttribArray(0);  
-            
-            // MVP
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            //model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-            //model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
-            glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
-            
-            // Camera
-            glm::vec3 cameraPos   = glm::vec3(-75.0f, 0.0f, 300.0f);
-            glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-            glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-            glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-            glUniformMatrix4fv(_shader->getUniformLocation("view"), 1, GL_FALSE, glm::value_ptr(view));
-
-            glm::mat4 projection;
-            // projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-            ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
-            projection = glm::perspective(glm::radians(45.0f), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
-            glUniformMatrix4fv(_shader->getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-            
+                        
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glUniform3f(_shader->getUniformLocation("inputColor"), shaderFillColor.x, shaderFillColor.y, shaderFillColor.z);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);

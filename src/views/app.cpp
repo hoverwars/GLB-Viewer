@@ -21,9 +21,6 @@ App::App() : _leftMenu(new LeftMenu()), _scene(new Scene()), _fileBrowser()
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, primaryColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, primaryColor);
     logInfo("Application style setup.");
-
-    GlbFile* file = GlbFileHandler::getInstance()->loadGlbFile("D:/dev/GLB-Viewer/resource/models/gun.glb");
-    NodeHandler::getInstance()->loadNodes(file);
 }
 
 App::~App()
