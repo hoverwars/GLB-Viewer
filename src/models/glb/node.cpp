@@ -35,7 +35,7 @@ bool Node::hasChild(Node* node)
 
 bool Node::hasChild()
 {
-    return _children.size() == 0;
+    return _children.size() != 0;
 }
 
 vector<Node*> Node::getChildren()

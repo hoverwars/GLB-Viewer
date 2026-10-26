@@ -60,6 +60,11 @@ string NodeHandler::getUniqueName(Node* node)
     return choosenName;
 }
 
+vector<Node*> NodeHandler::getNodes()
+{
+    return _nodes;
+}
+
 void NodeHandler::loadNodes(GlbFile* baseFile)
 {
     // Get raw nodes from the glb file. Will do some processing on them.
