@@ -15,6 +15,9 @@
 
 using namespace std;
 
+double Scene::_cameraZoom = 30.0f;
+bool Scene::_isSceneHovered = false;
+
 Scene::Scene()
 {
     logInfo("Starting scene setup...");
@@ -30,6 +33,8 @@ Scene::Scene()
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_ebo);
     glEnable(GL_DEPTH_TEST);
+
+    WindowContextProvider::getInstance()->setScrollCallback(Scene::updateZoom);
 
     _grid = vector<glm::vec3>();
     for (float i = -100; i <= 100; i += 1)
@@ -60,6 +65,19 @@ Scene::~Scene()
     delete _framebuffer;
 }
 
+void Scene::updateZoom(GLFWwindow* window, double xOffset, double yOffset)
+{
+    if (_isSceneHovered)
+    {
+        _cameraZoom -= yOffset;
+        if (_cameraZoom < 1)
+            _cameraZoom = 1;
+
+        else if (_cameraZoom > 200)
+            _cameraZoom = 200;
+    }
+}
+
 void Scene::render(Region2D scenePos)
 {
     Size2D fbSize = WindowContextProvider::getInstance()->getFramebufferSize();
@@ -87,6 +105,8 @@ void Scene::render(Region2D scenePos)
         ImVec2(1, 0)
     );
 
+    _isSceneHovered = ImGui::IsWindowHovered();
+
     ImGui::End();
 }
 
@@ -101,13 +121,13 @@ void Scene::renderContent()
     glm::mat4 model = glm::mat4(1.0f);
     // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    // model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
     //model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
     glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
     
     // Camera
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, 50.0f);
+    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, _cameraZoom);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
     glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -144,7 +164,6 @@ void Scene::renderGrid()
     glDrawArrays(GL_LINES, 0, _grid.size());
     glBindVertexArray(0);
 
-    
     // Draw subgrid 
     glLineWidth(3);
     glBindVertexArray(_vao);

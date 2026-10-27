@@ -27,3 +27,8 @@ void WindowContextProvider::shouldClose(bool value)
 {
     glfwSetWindowShouldClose(_window, value);
 }
+
+void WindowContextProvider::setScrollCallback(GLFWscrollfun callback)
+{
+    glfwSetScrollCallback(_window, callback);
+}

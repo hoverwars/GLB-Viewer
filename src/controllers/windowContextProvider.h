@@ -2,6 +2,7 @@
 #define APP_CONTEXT_PROVIDER_H
 
 #include <GLFW/glfw3.h>
+#include <functional>
 
 #include "../models/position.h"
 
@@ -15,7 +16,11 @@ public:
     static WindowContextProvider* getInstance();
     static void setInstance(WindowContextProvider* instance);
     Size2D getFramebufferSize();
+
     void shouldClose(bool value);
+
+    // Inputs
+    void setScrollCallback(GLFWscrollfun callback);
 };
 
 #endif
