@@ -12,7 +12,7 @@ LIBS := -L./libs/ -lglfw3 -lgdi32
 
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(TARGET_FOLDER)
-	g++ -Wall $(INCLUDES) $^ -o $@ $(LIBS)
+	g++ -Wall -static $(INCLUDES) $^ -o $@ $(LIBS)
 	$(TARGET)
 
 obj/%.o: src/%.cpp
