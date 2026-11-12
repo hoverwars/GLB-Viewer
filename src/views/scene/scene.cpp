@@ -15,7 +15,11 @@
 
 using namespace std;
 
-double Scene::_cameraZoom = 30.0f;
+static const float kFovDegrees = 45.0f;
+static const float kMinDistance = 1.0f;
+static const float kMaxDistance = 200.0f;
+
+float Scene::_scrollDelta = 0;
 bool Scene::_isSceneHovered = false;
 
 Scene::Scene()
@@ -68,14 +72,61 @@ Scene::~Scene()
 void Scene::updateZoom(GLFWwindow* window, double xOffset, double yOffset)
 {
     if (_isSceneHovered)
-    {
-        _cameraZoom -= yOffset;
-        if (_cameraZoom < 1)
-            _cameraZoom = 1;
+        _scrollDelta += (float)yOffset;
+}
 
-        else if (_cameraZoom > 200)
-            _cameraZoom = 200;
+glm::mat4 Scene::updateCamera(float viewportHeight)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    const glm::vec3 worldUp(0.0f, 0.0f, 1.0f);
+
+    // Orientation derived from yaw/pitch: always unit length, no manual normalization.
+    auto computeFront = [this]() {
+        const float yaw = glm::radians(_yaw);
+        const float pitch = glm::radians(_pitch);
+        // Camera sits at target + distance * dir, and looks back at the target.
+        return -glm::vec3(cos(pitch) * cos(yaw), cos(pitch) * sin(yaw), sin(pitch));
+    };
+
+    // A drag starts only when the scene is hovered, and continues even if the cursor leaves it.
+    if (_isSceneHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+        _isDragging = true;
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Middle))
+        _isDragging = false;
+
+    if (_isDragging)
+    {
+        // Moving the camera
+        if (io.KeyShift)
+        {
+            // Pan: move the target along the camera's right/up axes.
+            const glm::vec3 front = computeFront();
+            const glm::vec3 right = glm::normalize(glm::cross(front, worldUp));
+            const glm::vec3 camUp = glm::cross(right, front);
+
+            // World size of one pixel at the target's depth -> the scene follows the cursor exactly.
+            const float unitsPerPixel = 2.0f * _distance * tan(glm::radians(kFovDegrees) / 2.0f) / viewportHeight;
+            _target += (-io.MouseDelta.x * right + io.MouseDelta.y * camUp) * unitsPerPixel;
+        }
+        // Rotating the camera
+        else
+        {
+            // Orbit around the target.
+            _yaw   -= io.MouseDelta.x * 0.4f;
+            _pitch  = glm::clamp(_pitch + io.MouseDelta.y * 0.4f, -89.0f, 89.0f);
+        }
     }
+
+    // Zoom: multiplicative, so each notch feels the same at any distance.
+    if (_scrollDelta != 0.0f)
+    {
+        _distance = glm::clamp(_distance * pow(0.9f, _scrollDelta), kMinDistance, kMaxDistance);
+        _scrollDelta = 0.0f;
+    }
+
+    const glm::vec3 front = computeFront();
+    const glm::vec3 position = _target - front * _distance;
+    return glm::lookAt(position, _target, worldUp);
 }
 
 void Scene::render(Region2D scenePos)
@@ -119,24 +170,17 @@ void Scene::renderContent()
 
     // MVP
     glm::mat4 model = glm::mat4(1.0f);
-    // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(-80.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    // model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    //model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.5f));
     glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
     
-    // Camera
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, _cameraZoom);
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    // Camera (new)
+    ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
+    glm::mat4 view = updateCamera(spaceAvailable.y);
+
     glUniformMatrix4fv(_shader->getUniformLocation("view"), 1, GL_FALSE, glm::value_ptr(view));
 
     glm::mat4 projection;
     // projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-    ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
-    projection = glm::perspective(glm::radians(45.0f), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
+    projection = glm::perspective(glm::radians(kFovDegrees), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
     glUniformMatrix4fv(_shader->getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
     renderGrid();
@@ -186,11 +230,11 @@ void Scene::renderGrid()
 void Scene::renderNode(Node* node)
 {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-80.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    /*model = glm::rotate(model, glm::radians(-80.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
     model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -60.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -60.0f));*/
     glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
 
     // If this node has children, display them.

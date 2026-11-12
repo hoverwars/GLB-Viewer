@@ -22,13 +22,19 @@ private:
     vector<glm::vec3> _grid;
     vector<glm::vec3> _subGrid;
 
-    static double _cameraZoom;
+    glm::vec3 _target = glm::vec3(0.0f);
+    float _yaw = 225.0f;      // Same viewing direction as the old (1, 1, -1) front vector
+    float _pitch = 35.26f;
+    float _distance = 30.0f;
+    bool _isDragging = false;
+    static float _scrollDelta; // Accumulated mouse wheel since last frame
     static bool _isSceneHovered;
 
     unsigned int _vbo; // Vertex buffer object
     unsigned int _vao; // Vertex array object
     unsigned int _ebo; // Element buffer object
     void renderContent();
+    glm::mat4 updateCamera(float viewportHeight);
     static void updateZoom(GLFWwindow* window, double xOffset, double yOffset);
 
 public:
