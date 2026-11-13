@@ -34,8 +34,9 @@ int main()
 
     setupInitialViewport(window);
     glfwSetFramebufferSizeCallback(window, onWindowResize); // handle resize
-
+    
     setupImGui(window);
+    setupIconPack();
     logInfo("UI framework ready.");
 
     WindowContextProvider windowContextProvider = WindowContextProvider(window);

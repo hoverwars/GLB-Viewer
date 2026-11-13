@@ -5,9 +5,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui/imgui.h>
+#include <imgui/IconsLucide.h>
 
 #include "scene.h"
-#include "imgui/imgui.h"
 #include "../../utils/darkStyle.h"
 #include "../../utils/logs.h"
 #include "../../controllers/windowContextProvider.h"
@@ -70,7 +71,7 @@ void Scene::render(Region2D scenePos)
     
     ImGui::SetNextWindowPos(ImVec2(scenePos.x, 25));
     ImGui::SetNextWindowSize(ImVec2(scenePos.width, windowHeight));
-    ImGui::Begin("Scene", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+    ImGui::Begin(ICON_LC_BOXES " Scene", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     ImVec2 spaceAvailablePos = ImGui::GetCursorScreenPos();
     ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();

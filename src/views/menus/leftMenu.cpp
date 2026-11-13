@@ -1,5 +1,7 @@
-#include "imgui/imgui.h"
 #include "leftMenu.h"
+
+#include <imgui/imgui.h>
+#include <imgui/IconsLucide.h>
 
 #include "../../controllers/windowContextProvider.h"
 #include "../../controllers/nodeHandler.h"
@@ -15,7 +17,7 @@ Region2D LeftMenu::render()
         ImVec2(600, windowHeight)
     );
 
-    ImGui::Begin("Objects", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Begin(ICON_LC_COMBINE " Objects", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
     ImVec2 size = ImGui::GetWindowSize();
 
     for (Node* node : NodeHandler::getInstance()->getNodes())
