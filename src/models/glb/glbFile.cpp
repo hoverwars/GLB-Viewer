@@ -61,9 +61,9 @@ vector<Node*> GlbFile::getNodes()
             nodes.push_back(new Node(
                 name,
                 children,
-                rotation.size() != 4 ? glm::vec4(1.0f) : glm::vec4(rotation[0], rotation[1], rotation[2], rotation[3]),
+                rotation.size() != 4 ? glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) : glm::vec4(rotation[0], rotation[1], rotation[2], rotation[3]),
                 scale.size() != 3 ? glm::vec3(1.0f) : glm::vec3(scale[0], scale[1], scale[2]),
-                translation.size() != 3 ? glm::vec3(1.0f) : glm::vec3(translation[0], translation[1], translation[2])
+                translation.size() != 3 ? glm::vec3(0.0f) : glm::vec3(translation[0], translation[1], translation[2])
             ));
         }
         else if (meshId != -1)
@@ -73,9 +73,9 @@ vector<Node*> GlbFile::getNodes()
             nodes.push_back(new Node(
                 name,
                 mesh,
-                rotation.size() != 4 ? glm::vec4(1.0f) : glm::vec4(rotation[0], rotation[1], rotation[2], rotation[3]),
+                rotation.size() != 4 ? glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) : glm::vec4(rotation[0], rotation[1], rotation[2], rotation[3]),
                 scale.size() != 3 ? glm::vec3(1.0f) : glm::vec3(scale[0], scale[1], scale[2]),
-                translation.size() != 3 ? glm::vec3(1.0f) : glm::vec3(translation[0], translation[1], translation[2])
+                translation.size() != 3 ? glm::vec3(0.0f) : glm::vec3(translation[0], translation[1], translation[2])
             ));
         }
     }

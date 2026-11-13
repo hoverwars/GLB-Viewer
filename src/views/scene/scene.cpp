@@ -32,7 +32,7 @@ Scene::Scene()
     _framebuffer = new Framebuffer();
     _renderer = [this]() { this->renderContent(); };
 
-    glLineWidth(2);
+    glLineWidth(3);
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_ebo);
@@ -229,14 +229,6 @@ void Scene::renderGrid()
 
 void Scene::renderNode(Node* node)
 {
-    glm::mat4 model = glm::mat4(1.0f);
-    /*model = glm::rotate(model, glm::radians(-80.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-    model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -60.0f));*/
-    glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
-
     // If this node has children, display them.
     if (node->hasChild())
     {
@@ -250,6 +242,10 @@ void Scene::renderNode(Node* node)
     Mesh* mesh = node->getMesh();
     if (mesh != nullptr)
     {
+        // GLTF is Y-up but the application is Z up. Apply a rotation to transform the model to be z-up 
+        glm::mat4 model = node->applyTransformations(glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+        glUniformMatrix4fv(_shader->getUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(model));
+
         for (MeshPart* part : mesh->getParts())
         {
             vector<glm::vec3> vertices = part->getVertices()->getData();

@@ -81,7 +81,7 @@ void NodeHandler::loadNodes(GlbFile* baseFile)
             if (node != other && other->hasChild(node))
             {
                 referenced = true;
-                break;
+                node->setFather(other);
             }
         }
 
