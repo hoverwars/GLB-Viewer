@@ -15,13 +15,6 @@
 
 using namespace std;
 
-static const float kFovDegrees = 45.0f;
-static const float kMinDistance = 1.0f;
-static const float kMaxDistance = 200.0f;
-
-float Scene::_scrollDelta = 0;
-bool Scene::_isSceneHovered = false;
-
 Scene::Scene()
 {
     logInfo("Starting scene setup...");
@@ -31,14 +24,13 @@ Scene::Scene()
     );
     _framebuffer = new Framebuffer();
     _renderer = [this]() { this->renderContent(); };
+    _camera = new Camera();
 
     glLineWidth(3);
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_ebo);
     glEnable(GL_DEPTH_TEST);
-
-    WindowContextProvider::getInstance()->setScrollCallback(Scene::updateZoom);
 
     _grid = vector<glm::vec3>();
     for (float i = -100; i <= 100; i += 1)
@@ -67,66 +59,7 @@ Scene::~Scene()
 {
     delete _shader;
     delete _framebuffer;
-}
-
-void Scene::updateZoom(GLFWwindow* window, double xOffset, double yOffset)
-{
-    if (_isSceneHovered)
-        _scrollDelta += (float)yOffset;
-}
-
-glm::mat4 Scene::updateCamera(float viewportHeight)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    const glm::vec3 worldUp(0.0f, 0.0f, 1.0f);
-
-    // Orientation derived from yaw/pitch: always unit length, no manual normalization.
-    auto computeFront = [this]() {
-        const float yaw = glm::radians(_yaw);
-        const float pitch = glm::radians(_pitch);
-        // Camera sits at target + distance * dir, and looks back at the target.
-        return -glm::vec3(cos(pitch) * cos(yaw), cos(pitch) * sin(yaw), sin(pitch));
-    };
-
-    // A drag starts only when the scene is hovered, and continues even if the cursor leaves it.
-    if (_isSceneHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
-        _isDragging = true;
-    if (!ImGui::IsMouseDown(ImGuiMouseButton_Middle))
-        _isDragging = false;
-
-    if (_isDragging)
-    {
-        // Moving the camera
-        if (io.KeyShift)
-        {
-            // Pan: move the target along the camera's right/up axes.
-            const glm::vec3 front = computeFront();
-            const glm::vec3 right = glm::normalize(glm::cross(front, worldUp));
-            const glm::vec3 camUp = glm::cross(right, front);
-
-            // World size of one pixel at the target's depth -> the scene follows the cursor exactly.
-            const float unitsPerPixel = 2.0f * _distance * tan(glm::radians(kFovDegrees) / 2.0f) / viewportHeight;
-            _target += (-io.MouseDelta.x * right + io.MouseDelta.y * camUp) * unitsPerPixel;
-        }
-        // Rotating the camera
-        else
-        {
-            // Orbit around the target.
-            _yaw   -= io.MouseDelta.x * 0.4f;
-            _pitch  = glm::clamp(_pitch + io.MouseDelta.y * 0.4f, -89.0f, 89.0f);
-        }
-    }
-
-    // Zoom: multiplicative, so each notch feels the same at any distance.
-    if (_scrollDelta != 0.0f)
-    {
-        _distance = glm::clamp(_distance * pow(0.9f, _scrollDelta), kMinDistance, kMaxDistance);
-        _scrollDelta = 0.0f;
-    }
-
-    const glm::vec3 front = computeFront();
-    const glm::vec3 position = _target - front * _distance;
-    return glm::lookAt(position, _target, worldUp);
+    delete _camera;
 }
 
 void Scene::render(Region2D scenePos)
@@ -156,7 +89,7 @@ void Scene::render(Region2D scenePos)
         ImVec2(1, 0)
     );
 
-    _isSceneHovered = ImGui::IsWindowHovered();
+    _camera->setSceneHovered(ImGui::IsWindowHovered());
 
     ImGui::End();
 }
@@ -174,13 +107,13 @@ void Scene::renderContent()
     
     // Camera (new)
     ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
-    glm::mat4 view = updateCamera(spaceAvailable.y);
+    glm::mat4 view = _camera->updateCamera(spaceAvailable.y);
 
     glUniformMatrix4fv(_shader->getUniformLocation("view"), 1, GL_FALSE, glm::value_ptr(view));
 
     glm::mat4 projection;
     // projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-    projection = glm::perspective(glm::radians(kFovDegrees), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
+    projection = glm::perspective(glm::radians(_camera->K_FOV_DEGREES), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
     glUniformMatrix4fv(_shader->getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
     renderGrid();
