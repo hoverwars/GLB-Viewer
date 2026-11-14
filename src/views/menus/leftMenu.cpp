@@ -2,6 +2,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/IconsLucide.h>
+#include <format>
 
 #include "../../controllers/windowContextProvider.h"
 #include "../../controllers/nodeHandler.h"
@@ -32,17 +33,42 @@ Region2D LeftMenu::render()
 
 void LeftMenu::renderNode(Node* node)
 {
-    if (node->hasChild() && ImGui::TreeNode(node->getName().c_str()))
+    if (node->hasChild())
     {
-        for (Node* child : node->getChildren())
+        bool opened = ImGui::TreeNode(std::format("##{}", node->getUniqueId()).c_str());
+        ImGui::SameLine();
+        if (ImGui::SmallButton(std::format("{}##{}", (node->isVisible() ? ICON_LC_EYE_OFF : ICON_LC_EYE), node->getUniqueId()).c_str()))
+            node->switchVisibility();
+        
+        ImGui::SameLine();
+        ImGui::Text(node->getName().c_str());
+
+        if (opened)
         {
-            renderNode(child);
+            for (Node* child : node->getChildren())
+            {
+                renderNode(child);
+            }
+
+            ImGui::TreePop();
+        }
+        
+    }
+    
+    if (!node->hasChild())
+    {
+        if (node->isFatherVisible())
+        {
+            if (ImGui::SmallButton(std::format("{}##{}", (node->isVisible() ? ICON_LC_EYE_OFF : ICON_LC_EYE), node->getUniqueId()).c_str()))
+                node->switchVisibility();
+        }
+        else
+        {
+            ImGui::SmallButton(std::format("{}##{}", ICON_LC_BAN, node->getUniqueId()).c_str());
         }
 
-        ImGui::TreePop();
-    }
-    else if (!node->hasChild())
-    {
+
+        ImGui::SameLine();
         ImGui::Text(node->getName().c_str());
     }
 }

@@ -162,7 +162,11 @@ void Scene::renderGrid()
 }
 
 void Scene::renderNode(Node* node)
-{
+{   
+    // Early return if this node should not be displayed 
+    // (a node not visible with children doesnt) display its children
+    if (!node->isVisible()) return;
+
     // If this node has children, display them.
     if (node->hasChild())
     {

@@ -2,6 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <sstream>
 
 Node::Node(string name, vector<Node*> children, glm::vec4 rotation, glm::vec3 scale, glm::vec3 translation)
 {
@@ -11,6 +12,11 @@ Node::Node(string name, vector<Node*> children, glm::vec4 rotation, glm::vec3 sc
     _rotation = rotation;
     _scale = scale;
     _translation = translation;
+    _isVisible = true;
+
+    std::stringstream ss;
+    ss << (void const *)this;
+    _uniqueId = ss.str();
 }
 
 Node::Node(string name, Mesh* mesh, glm::vec4 rotation, glm::vec3 scale, glm::vec3 translation)
@@ -21,6 +27,11 @@ Node::Node(string name, Mesh* mesh, glm::vec4 rotation, glm::vec3 scale, glm::ve
     _rotation = rotation;
     _scale = scale;
     _translation = translation;
+    _isVisible = true;
+
+    std::stringstream ss;
+    ss << (void const *)this;
+    _uniqueId = ss.str();
 }
 
 glm::mat4 Node::applyTransformations(glm::mat4 model)
@@ -78,4 +89,25 @@ string Node::getName()
 Mesh* Node::getMesh()
 {
     return _mesh;
+}
+
+string Node::getUniqueId()
+{
+    return _uniqueId;
+}
+
+bool Node::isVisible()
+{
+    if (_father == nullptr) return _isVisible;
+    else return _father->isVisible() && _isVisible;
+}
+
+bool Node::isFatherVisible()
+{
+    return _father == nullptr || _father->isVisible();
+}
+
+void Node::switchVisibility()
+{
+    _isVisible = !_isVisible;
 }
