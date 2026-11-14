@@ -6,6 +6,7 @@
 
 #include "../../controllers/windowContextProvider.h"
 #include "../../controllers/nodeHandler.h"
+#include "../../utils/darkStyle.h"
 
 Region2D LeftMenu::render()
 {
@@ -41,7 +42,15 @@ void LeftMenu::renderNode(Node* node)
             node->switchVisibility();
         
         ImGui::SameLine();
-        ImGui::Text(node->getName().c_str());
+        if (node->isSelected())
+            ImGui::TextColored(primaryColor, node->getName().c_str());
+        else
+            ImGui::Text(node->getName().c_str());
+
+        if (ImGui::IsItemClicked())
+        {
+            node->setSelected(!node->isSelected());
+        }
 
         if (opened)
         {
@@ -69,6 +78,14 @@ void LeftMenu::renderNode(Node* node)
 
 
         ImGui::SameLine();
-        ImGui::Text(node->getName().c_str());
+        if (node->isSelected())
+            ImGui::TextColored(primaryColor, node->getName().c_str());
+        else
+            ImGui::Text(node->getName().c_str());
+
+        if (ImGui::IsItemClicked())
+        {
+            node->setSelected(!node->isSelected());
+        }
     }
 }

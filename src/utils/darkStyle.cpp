@@ -7,3 +7,4 @@ const ImVec4& tertiaryBgColor = ImVec4(0.38f, 0.38f, 0.38f, 1.0f);
 
 const ImVec4& shaderFillColor = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
 const ImVec4& shaderLineColor = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+const ImVec4& shaderSelectedLineColor = ImVec4(0.67f, 0.473f, 0.0f, 1.0f);

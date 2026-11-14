@@ -211,7 +211,8 @@ void Scene::renderNode(Node* node)
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
 
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glUniform3f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z);
+            ImVec4 lineColor = node->isSelected() ? shaderSelectedLineColor : shaderLineColor;
+            glUniform3f(_shader->getUniformLocation("inputColor"), lineColor.x, lineColor.y, lineColor.z);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
             glBindVertexArray(0);
         }

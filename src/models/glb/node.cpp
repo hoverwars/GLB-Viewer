@@ -111,3 +111,17 @@ void Node::switchVisibility()
 {
     _isVisible = !_isVisible;
 }
+
+void Node::setSelected(bool selected)
+{
+    _selected = selected;
+    for (Node* child : _children)
+    {
+        child->setSelected(selected);
+    }
+}
+
+bool Node::isSelected()
+{
+    return _selected;
+}

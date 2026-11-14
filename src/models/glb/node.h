@@ -21,6 +21,7 @@ private:
     glm::vec3 _scale;
     string _uniqueId;
     bool _isVisible;
+    bool _selected;
 
 public:
     Node(string name, vector<Node*> children, glm::vec4 rotation, glm::vec3 scale, glm::vec3 translation);
@@ -35,10 +36,13 @@ public:
     void setName(string name);
     string getName();
     Mesh* getMesh();
+    
     string getUniqueId();
     bool isVisible();
     bool isFatherVisible();  // If father == nullptr, returns true.
     void switchVisibility();
+    void setSelected(bool selected);
+    bool isSelected();
 };
 
 #endif

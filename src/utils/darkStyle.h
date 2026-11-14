@@ -10,5 +10,6 @@ extern const ImVec4& tertiaryBgColor;
 
 extern const ImVec4& shaderFillColor;
 extern const ImVec4& shaderLineColor;
+extern const ImVec4& shaderSelectedLineColor;
 
 #endif
