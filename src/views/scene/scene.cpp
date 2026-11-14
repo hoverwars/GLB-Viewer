@@ -209,11 +209,15 @@ void Scene::renderNode(Node* node)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glUniform3f(_shader->getUniformLocation("inputColor"), shaderFillColor.x, shaderFillColor.y, shaderFillColor.z);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
+            
+            if (_displayLines)
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                ImVec4 lineColor = node->isSelected() ? shaderSelectedLineColor : shaderLineColor;
+                glUniform3f(_shader->getUniformLocation("inputColor"), lineColor.x, lineColor.y, lineColor.z);
+                glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
+            }
 
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            ImVec4 lineColor = node->isSelected() ? shaderSelectedLineColor : shaderLineColor;
-            glUniform3f(_shader->getUniformLocation("inputColor"), lineColor.x, lineColor.y, lineColor.z);
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
             glBindVertexArray(0);
         }
     }
@@ -266,6 +270,19 @@ void Scene::renderMenu()
     }
 
     if (oldShowGrid)
+        ImGui::PopStyleColor(1);
+
+    bool oldDisplayLine = _displayLines; // To pop after
+    if (oldDisplayLine)
+        ImGui::PushStyleColor(ImGuiCol_Text, primaryColor);
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_LC_SPLINE))
+    {
+        _displayLines = !_displayLines;
+    }
+
+    if (oldDisplayLine)
         ImGui::PopStyleColor(1);
 
     ImGui::SameLine(0, 50);

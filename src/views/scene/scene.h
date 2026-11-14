@@ -23,8 +23,10 @@ private:
 
     vector<glm::vec3> _grid;
     vector<glm::vec3> _subGrid;
+    
+    // Menu options
     bool _showGrid = true;
-
+    bool _displayLines = true;
     short _mouseMode = 0;
 
     unsigned int _vbo; // Vertex buffer object
