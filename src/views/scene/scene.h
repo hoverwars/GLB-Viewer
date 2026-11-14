@@ -25,6 +25,8 @@ private:
     vector<glm::vec3> _subGrid;
     bool _showGrid = true;
 
+    short _mouseMode = 0;
+
     unsigned int _vbo; // Vertex buffer object
     unsigned int _vao; // Vertex array object
     unsigned int _ebo; // Element buffer object

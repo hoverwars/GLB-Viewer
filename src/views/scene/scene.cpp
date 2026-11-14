@@ -219,20 +219,68 @@ void Scene::renderNode(Node* node)
     }
 }
 
+bool displayButton(string icon, bool selected, bool applySameLineAttribute = true)
+{
+    if (selected)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, primaryColor);
+    }
+
+    if (applySameLineAttribute)
+        ImGui::SameLine();
+    
+    bool clicked = ImGui::Button(icon.c_str());
+
+    if (selected)
+    {
+        ImGui::PopStyleColor(1);
+    }
+
+    return clicked;
+}
+
 void Scene::renderMenu()
 {
     ImGui::PushFont(NULL, ImGui::GetStyle().FontSizeBase * 2);
+
+    bool wasTargetingCenter = _camera->isTargetingCenter(); // Pop style after.
+    if (wasTargetingCenter)
+        ImGui::PushStyleColor(ImGuiCol_Text, primaryColor);
 
     if (ImGui::Button(ICON_LC_MAP_PINNED))
     {
         _camera->resetPosition();
     }
 
+    if (wasTargetingCenter)
+        ImGui::PopStyleColor(1);
+
     ImGui::SameLine();
-    if (ImGui::Button(_showGrid ? ICON_LC_EYE_OFF : ICON_LC_GRID_3_X_3))
+    bool oldShowGrid = _showGrid; // To pop style.
+    if (oldShowGrid)
+        ImGui::PushStyleColor(ImGuiCol_Text, primaryColor);
+
+    if (ImGui::Button(ICON_LC_GRID_3_X_3))
     {
         _showGrid = !_showGrid;
     }
+
+    if (oldShowGrid)
+        ImGui::PopStyleColor(1);
+
+    ImGui::SameLine(0, 50);
+
+    if (displayButton(ICON_LC_MOUSE_POINTER, _mouseMode == 0, false))
+        _mouseMode = 0;
+
+    if (displayButton(ICON_LC_MOVE_3D, _mouseMode == 1))
+        _mouseMode = 1;
+
+    if (displayButton(ICON_LC_SCALING, _mouseMode == 2))
+        _mouseMode = 2;
+
+    if (displayButton(ICON_LC_ROTATE_3D, _mouseMode == 3))
+        _mouseMode = 3;
 
     ImGui::PopFont();
 }

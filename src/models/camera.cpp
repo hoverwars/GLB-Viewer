@@ -74,6 +74,11 @@ void Camera::resetPosition()
     _target = glm::vec3(0.0f);
 }
 
+bool Camera::isTargetingCenter()
+{
+    return _target == glm::vec3(0.0f);
+}
+
 void Camera::updateZoom(GLFWwindow* window, double xOffset, double yOffset)
 {
     if (_isSceneHovered)
