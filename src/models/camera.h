@@ -20,6 +20,7 @@ private:
 public:
     Camera();
     glm::mat4 updateCamera(float viewportHeight);
+    void resetPosition();
     static void updateZoom(GLFWwindow* window, double xOffset, double yOffset);
     static void setSceneHovered(bool sceneHovered);
 

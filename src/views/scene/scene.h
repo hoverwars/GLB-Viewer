@@ -23,18 +23,20 @@ private:
 
     vector<glm::vec3> _grid;
     vector<glm::vec3> _subGrid;
+    bool _showGrid = true;
 
     unsigned int _vbo; // Vertex buffer object
     unsigned int _vao; // Vertex array object
     unsigned int _ebo; // Element buffer object
     void renderContent();
+    void renderNode(Node* node);
+    void renderGrid();
+    void renderMenu();
 
 public:
     Scene();
     ~Scene();
     void render(Region2D scenePos);
-    void renderNode(Node* node);
-    void renderGrid();
 };
 
 #endif

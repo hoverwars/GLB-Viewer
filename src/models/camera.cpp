@@ -69,6 +69,11 @@ glm::mat4 Camera::updateCamera(float viewportHeight)
     return glm::lookAt(position, _target, worldUp);
 }
 
+void Camera::resetPosition()
+{
+    _target = glm::vec3(0.0f);
+}
+
 void Camera::updateZoom(GLFWwindow* window, double xOffset, double yOffset)
 {
     if (_isSceneHovered)

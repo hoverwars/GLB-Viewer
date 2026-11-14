@@ -71,28 +71,32 @@ void Scene::render(Region2D scenePos)
     
     ImGui::SetNextWindowPos(ImVec2(scenePos.x, 25));
     ImGui::SetNextWindowSize(ImVec2(scenePos.width, windowHeight));
-    ImGui::Begin(ICON_LC_BOXES " Scene", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
-    ImVec2 spaceAvailablePos = ImGui::GetCursorScreenPos();
-    ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
+    if (ImGui::Begin(ICON_LC_BOXES " Scene", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+    {
+        renderMenu();
+        
+        ImVec2 spaceAvailablePos = ImGui::GetCursorScreenPos();
+        ImVec2 spaceAvailable = ImGui::GetContentRegionAvail();
+        
+        _framebuffer->renderToFramebuffer(
+            spaceAvailable.x,
+            spaceAvailable.y,
+            _renderer
+        );
     
-    _framebuffer->renderToFramebuffer(
-        spaceAvailable.x,
-        spaceAvailable.y,
-        _renderer
-    );
-
-    ImGui::GetWindowDrawList()->AddImage(
-        _framebuffer->getTextureId(), 
-        spaceAvailablePos, 
-        ImVec2(spaceAvailablePos.x + spaceAvailable.x, spaceAvailablePos.y + spaceAvailable.y), 
-        ImVec2(0, 1), 
-        ImVec2(1, 0)
-    );
-
-    _camera->setSceneHovered(ImGui::IsWindowHovered());
-
-    ImGui::End();
+        ImGui::GetWindowDrawList()->AddImage(
+            _framebuffer->getTextureId(), 
+            spaceAvailablePos, 
+            ImVec2(spaceAvailablePos.x + spaceAvailable.x, spaceAvailablePos.y + spaceAvailable.y), 
+            ImVec2(0, 1), 
+            ImVec2(1, 0)
+        );
+    
+        _camera->setSceneHovered(ImGui::IsWindowHovered());
+    
+        ImGui::End();
+    }
 }
 
 void Scene::renderContent()
@@ -117,7 +121,8 @@ void Scene::renderContent()
     projection = glm::perspective(glm::radians(_camera->K_FOV_DEGREES), spaceAvailable.x / spaceAvailable.y, 0.1f, 1000.0f);
     glUniformMatrix4fv(_shader->getUniformLocation("projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    renderGrid();
+    if (_showGrid)
+        renderGrid();
 
     for (Node* node: NodeHandler::getInstance()->getNodes())
     {
@@ -211,4 +216,22 @@ void Scene::renderNode(Node* node)
             glBindVertexArray(0);
         }
     }
+}
+
+void Scene::renderMenu()
+{
+    ImGui::PushFont(NULL, ImGui::GetStyle().FontSizeBase * 2);
+
+    if (ImGui::Button(ICON_LC_MAP_PINNED))
+    {
+        _camera->resetPosition();
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button(_showGrid ? ICON_LC_EYE_OFF : ICON_LC_GRID_3_X_3))
+    {
+        _showGrid = !_showGrid;
+    }
+
+    ImGui::PopFont();
 }
