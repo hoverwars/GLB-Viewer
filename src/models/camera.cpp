@@ -45,7 +45,7 @@ glm::mat4 Camera::updateCamera(float viewportHeight)
             const glm::vec3 camUp = glm::cross(right, front);
 
             // World size of one pixel at the target's depth -> the scene follows the cursor exactly.
-            const float unitsPerPixel = 2.0f * _distance * tan(glm::radians(K_FOV_DEGREES) / 2.0f) / viewportHeight;
+            const float unitsPerPixel = getUnitsPerPixel(viewportHeight);
             _target += (-io.MouseDelta.x * right + io.MouseDelta.y * camUp) * unitsPerPixel;
         }
         // Rotating the camera
@@ -65,8 +65,33 @@ glm::mat4 Camera::updateCamera(float viewportHeight)
     }
 
     const glm::vec3 front = computeFront();
+    _right = glm::normalize(glm::cross(front, worldUp));
+    _up = glm::cross(_right, front);
+    _front = front;
     const glm::vec3 position = _target - front * _distance;
+    _position = position;
     return glm::lookAt(position, _target, worldUp);
+}
+
+glm::vec3 Camera::getRight()
+{
+    return _right;
+}
+
+glm::vec3 Camera::getUp()
+{
+    return _up;
+}
+
+float Camera::getUnitsPerPixel(float viewportHeight)
+{
+    return 2.0f * _distance * tan(glm::radians(K_FOV_DEGREES) / 2.0f) / viewportHeight;
+}
+
+float Camera::getUnitsPerPixelAt(glm::vec3 worldPoint, float viewportHeight)
+{
+    float depth = glm::max(glm::dot(worldPoint - _position, _front), 0.1f);
+    return 2.0f * depth * tan(glm::radians(K_FOV_DEGREES) / 2.0f) / viewportHeight;
 }
 
 void Camera::resetPosition()

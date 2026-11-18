@@ -3,6 +3,7 @@
 #include <imgui/imgui.h>
 #include <imgui/IconsLucide.h>
 #include <format>
+#include <glm/gtc/quaternion.hpp>
 
 #include "../../controllers/windowContextProvider.h"
 #include "../../controllers/nodeHandler.h"
@@ -27,9 +28,41 @@ Region2D LeftMenu::render()
         renderNode(node);
     }
 
+    renderTransformInspector();
+
     ImGui::End();
 
     return { 5, 25, static_cast<int>(size.x), static_cast<int>(size.y) };
+}
+
+// Numeric edition of the first selected node (local space, glTF axes: Y-up).
+void LeftMenu::renderTransformInspector()
+{
+    vector<Node*> selected = NodeHandler::getInstance()->getSelectedRoots();
+    if (selected.empty()) return;
+
+    Node* node = selected[0];
+    ImGui::Separator();
+    ImGui::Text(ICON_LC_MOVE_3D " Transform: %s", node->getName().c_str());
+
+    glm::vec3 translation = node->getTranslation();
+    if (ImGui::DragFloat3("Position", &translation.x, 0.05f))
+        node->setTranslation(translation);
+
+    glm::vec4 r = node->getRotation();
+    glm::vec3 euler = glm::degrees(glm::eulerAngles(glm::quat(r.w, r.x, r.y, r.z)));
+    if (ImGui::DragFloat3("Rotation", &euler.x, 0.5f))
+    {
+        glm::quat q = glm::quat(glm::radians(euler));
+        node->setRotation(glm::vec4(q.x, q.y, q.z, q.w));
+    }
+
+    glm::vec3 scale = node->getScale();
+    if (ImGui::DragFloat3("Scale", &scale.x, 0.01f))
+        node->setScale(scale);
+
+    if (selected.size() > 1)
+        ImGui::TextDisabled("(+%d other selected)", (int)selected.size() - 1);
 }
 
 void LeftMenu::renderNode(Node* node)

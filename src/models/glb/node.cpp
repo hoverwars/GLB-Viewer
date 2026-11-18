@@ -91,6 +91,41 @@ Mesh* Node::getMesh()
     return _mesh;
 }
 
+Node* Node::getFather()
+{
+    return _father;
+}
+
+glm::vec4 Node::getRotation()
+{
+    return _rotation;
+}
+
+glm::vec3 Node::getTranslation()
+{
+    return _translation;
+}
+
+glm::vec3 Node::getScale()
+{
+    return _scale;
+}
+
+void Node::setRotation(glm::vec4 rotation)
+{
+    _rotation = rotation;
+}
+
+void Node::setTranslation(glm::vec3 translation)
+{
+    _translation = translation;
+}
+
+void Node::setScale(glm::vec3 scale)
+{
+    _scale = scale;
+}
+
 string Node::getUniqueId()
 {
     return _uniqueId;

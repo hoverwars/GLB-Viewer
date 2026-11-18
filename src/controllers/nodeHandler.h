@@ -17,11 +17,14 @@ private:
 
     NodeHandler();
     string getUniqueName(Node* node);
+    void collectSelectedRoots(Node* node, vector<Node*>& result);
 
 public:
     static NodeHandler* getInstance();
     void loadNodes(GlbFile* baseFile);
     vector<Node*> getNodes();
+    // Selected nodes whose father is not selected (transforming a father already moves its children).
+    vector<Node*> getSelectedRoots();
     ~NodeHandler();
 };
 

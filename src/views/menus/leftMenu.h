@@ -10,6 +10,7 @@ class LeftMenu
 {
 private:
     void renderNode(Node* node);
+    void renderTransformInspector();
 public:
     Region2D render();
 };

@@ -21,7 +21,7 @@ private:
     glm::vec3 _scale;
     string _uniqueId;
     bool _isVisible;
-    bool _selected;
+    bool _selected = false;
 
 public:
     Node(string name, vector<Node*> children, glm::vec4 rotation, glm::vec3 scale, glm::vec3 translation);
@@ -37,6 +37,14 @@ public:
     string getName();
     Mesh* getMesh();
     
+    Node* getFather();
+    glm::vec4 getRotation();      // Quaternion (x, y, z, w)
+    glm::vec3 getTranslation();
+    glm::vec3 getScale();
+    void setRotation(glm::vec4 rotation);
+    void setTranslation(glm::vec3 translation);
+    void setScale(glm::vec3 scale);
+
     string getUniqueId();
     bool isVisible();
     bool isFatherVisible();  // If father == nullptr, returns true.

@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <vector>
+#include <imgui/imgui.h>
 
 #include "../../models/position.h"
 #include "../../models/shader.h"
@@ -28,6 +29,7 @@ private:
     bool _showGrid = true;
     bool _displayLines = true;
     short _mouseMode = 0;
+    bool _isTransforming = false;
 
     unsigned int _vbo; // Vertex buffer object
     unsigned int _vao; // Vertex array object
@@ -36,6 +38,7 @@ private:
     void renderNode(Node* node);
     void renderGrid();
     void renderMenu();
+    void handleTransformInput(ImVec2 areaPos, ImVec2 areaSize);
 
 public:
     Scene();

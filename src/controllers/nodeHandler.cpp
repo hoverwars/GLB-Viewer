@@ -65,6 +65,31 @@ vector<Node*> NodeHandler::getNodes()
     return _nodes;
 }
 
+void NodeHandler::collectSelectedRoots(Node* node, vector<Node*>& result)
+{
+    if (node->isSelected() && (node->getFather() == nullptr || !node->getFather()->isSelected()))
+    {
+        result.push_back(node);
+        return;
+    }
+
+    for (Node* child : node->getChildren())
+    {
+        collectSelectedRoots(child, result);
+    }
+}
+
+vector<Node*> NodeHandler::getSelectedRoots()
+{
+    vector<Node*> result;
+    for (Node* node : _nodes)
+    {
+        collectSelectedRoots(node, result);
+    }
+
+    return result;
+}
+
 void NodeHandler::loadNodes(GlbFile* baseFile)
 {
     // Get raw nodes from the glb file. Will do some processing on them.
