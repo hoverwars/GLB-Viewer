@@ -3,8 +3,11 @@
 using namespace std;
 
 WindowContextProvider* WindowContextProvider::_instance = nullptr;
-vector<function<void(GLFWwindow*, double, double)>> WindowContextProvider::_callbacks = {};
+scrollCallbackContainer WindowContextProvider::_scrollCallbacks = {};
+keyCallbackContainer WindowContextProvider::_keyCallbacks = {};
+
 bool WindowContextProvider::_isListeningToScroll = false;
+bool WindowContextProvider::_isListeningToKey = false;
 
 WindowContextProvider::WindowContextProvider(GLFWwindow* window) : _window(window)
 { }
@@ -32,7 +35,7 @@ void WindowContextProvider::shouldClose(bool value)
     glfwSetWindowShouldClose(_window, value);
 }
 
-void WindowContextProvider::addScrollCallback(function<void(GLFWwindow*, double, double)> callback)
+scrollCallbackContainer::iterator WindowContextProvider::addScrollCallback(function<void(GLFWwindow*, double, double)> callback)
 {
     // Enable scroll listening for the next frame.
     if (!_isListeningToScroll)
@@ -41,7 +44,7 @@ void WindowContextProvider::addScrollCallback(function<void(GLFWwindow*, double,
 
         auto scrollCallback = [](GLFWwindow* window, double xOffset, double yOffset)
         {
-            for (auto callback : WindowContextProvider::_callbacks)
+            for (auto callback : _scrollCallbacks)
             {
                 callback(window, xOffset, yOffset);
             }
@@ -50,5 +53,33 @@ void WindowContextProvider::addScrollCallback(function<void(GLFWwindow*, double,
         glfwSetScrollCallback(_window, scrollCallback);
     }
 
-    _callbacks.push_back(callback);
+    _scrollCallbacks.push_back(callback);
+    return --_scrollCallbacks.end();
+}
+
+keyCallbackContainer::iterator WindowContextProvider::addKeyCallback(function<void(GLFWwindow*, int, int, int, int)> callback)
+{
+    // Enable scroll listening for the next frame.
+    if (!_isListeningToKey)
+    {
+        _isListeningToKey = true;
+
+        auto keyCallback = [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        {
+            for (auto callback : _keyCallbacks)
+            {
+                callback(window, key, scancode, action, mods);
+            }
+        };
+
+        glfwSetKeyCallback(_window, keyCallback);
+    }
+
+    _keyCallbacks.push_back(callback);
+    return --_keyCallbacks.end();
+}
+
+void WindowContextProvider::removeKeyCallback(keyCallbackContainer::iterator it)
+{
+    _keyCallbacks.erase(it);
 }

@@ -7,12 +7,17 @@
 
 #include "../models/position.h"
 
+using keyCallbackContainer = std::vector<std::function<void(GLFWwindow*, int, int, int, int)>>;
+using scrollCallbackContainer = std::vector<std::function<void(GLFWwindow*, double, double)>>;
+
 class WindowContextProvider
 {
 private:
     static WindowContextProvider* _instance;
-    static std::vector<std::function<void(GLFWwindow*, double, double)>> _callbacks;
+    static scrollCallbackContainer _scrollCallbacks;
+    static keyCallbackContainer _keyCallbacks;
     static bool _isListeningToScroll;
+    static bool _isListeningToKey;
 
     GLFWwindow* _window;
 public:
@@ -24,7 +29,9 @@ public:
     void shouldClose(bool value);
 
     // Inputs
-    void addScrollCallback(std::function<void(GLFWwindow*, double, double)> callback);
+    scrollCallbackContainer::iterator addScrollCallback(std::function<void(GLFWwindow*, double, double)> callback);
+    keyCallbackContainer::iterator addKeyCallback(std::function<void(GLFWwindow*, int, int, int, int)> callback);
+    void removeKeyCallback(keyCallbackContainer::iterator it);
 };
 
 #endif

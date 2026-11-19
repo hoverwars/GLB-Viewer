@@ -26,6 +26,7 @@ Scene::Scene()
     _framebuffer = new Framebuffer();
     _renderer = [this]() { this->renderContent(); };
     _camera = new Camera();
+    _keyListener = new PriorityKeyPressedListener(vector<int>{GLFW_KEY_X, GLFW_KEY_Y, GLFW_KEY_W});
 
     glLineWidth(3);
     glGenVertexArrays(1, &_vao);
@@ -61,6 +62,31 @@ Scene::~Scene()
     delete _shader;
     delete _framebuffer;
     delete _camera;
+    delete _keyListener;
+}
+
+void Scene::handleTransformations()
+{   
+    // Not in transformation mode
+    if (_mouseMode == 0) return;
+
+    // Set the bool to toogle transformation mode
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+    {
+        _isTransforming = true;
+    }
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Middle))
+    {
+        _isTransforming = false;
+    }
+
+    // Not applying transformation
+    if (!_isTransforming) return;
+
+    int transformationRestriction = _keyListener->lastPressed();
+    switch (_mouseMode)
+    {
+    }
 }
 
 void Scene::render(Region2D scenePos)
@@ -287,17 +313,17 @@ void Scene::renderMenu()
 
     ImGui::SameLine(0, 50);
 
-    if (displayButton(ICON_LC_MOUSE_POINTER, _mouseMode == 0, false))
-        _mouseMode = 0;
+    if (displayButton(ICON_LC_MOUSE_POINTER, _mouseMode == FREE_MOUSE, false))
+        _mouseMode = FREE_MOUSE;
 
-    if (displayButton(ICON_LC_MOVE_3D, _mouseMode == 1))
-        _mouseMode = 1;
+    if (displayButton(ICON_LC_MOVE_3D, _mouseMode == TRANSLATE))
+        _mouseMode = TRANSLATE;
 
-    if (displayButton(ICON_LC_SCALING, _mouseMode == 2))
-        _mouseMode = 2;
+    if (displayButton(ICON_LC_SCALING, _mouseMode == SCALE))
+        _mouseMode = SCALE;
 
-    if (displayButton(ICON_LC_ROTATE_3D, _mouseMode == 3))
-        _mouseMode = 3;
+    if (displayButton(ICON_LC_ROTATE_3D, _mouseMode == ROTATE))
+        _mouseMode = ROTATE;
 
     ImGui::PopFont();
 }
