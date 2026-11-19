@@ -7,7 +7,7 @@
 class Camera
 {
 private:
-    static bool _isSceneHovered; 
+    bool _isSceneHovered; 
 
     float _yaw = 0.0f;
     float _pitch = 35.0f;
@@ -15,15 +15,15 @@ private:
 
     bool _isDragging = false;
     glm::vec3 _target = glm::vec3(0.0f);
-    static float _scrollDelta; // Accumulated mouse wheel since last frame
+    float _scrollDelta; // Accumulated mouse wheel since last frame
 
 public:
     Camera();
     glm::mat4 updateCamera(float viewportHeight);
     void resetPosition();
     bool isTargetingCenter();
-    static void updateZoom(GLFWwindow* window, double xOffset, double yOffset);
-    static void setSceneHovered(bool sceneHovered);
+    void updateZoom(GLFWwindow* window, double xOffset, double yOffset);
+    void setSceneHovered(bool sceneHovered);
 
     const float K_FOV_DEGREES;
     const float K_MIN_DISTANCE;

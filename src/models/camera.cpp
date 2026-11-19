@@ -7,12 +7,13 @@
 
 #include "../controllers/windowContextProvider.h"
 
-bool Camera::_isSceneHovered = false;
-float Camera::_scrollDelta = 0;
-
 Camera::Camera() : K_FOV_DEGREES(45.0f), K_MIN_DISTANCE(1.0f), K_MAX_DISTANCE(200.0f)
 {
-    WindowContextProvider::getInstance()->setScrollCallback(Camera::updateZoom);
+    _isSceneHovered = false;
+    _scrollDelta = 0;
+    WindowContextProvider::getInstance()->addScrollCallback([this](GLFWwindow* window, double xOffset, double yOffset){
+        this->updateZoom(window, xOffset, yOffset);
+    });
 }
 
 glm::mat4 Camera::updateCamera(float viewportHeight)

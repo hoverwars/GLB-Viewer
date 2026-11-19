@@ -3,13 +3,13 @@
 
 #include <functional>
 #include <vector>
+#include <GLFW/glfw3.h>
 
 #include "../../models/position.h"
 #include "../../models/shader.h"
 #include "../../models/framebuffer.h"
 #include "../../models/glb/node.h"
 #include "../../models/camera.h"
-
 
 using namespace std;
 
@@ -36,7 +36,6 @@ private:
     void renderNode(Node* node);
     void renderGrid();
     void renderMenu();
-
 public:
     Scene();
     ~Scene();

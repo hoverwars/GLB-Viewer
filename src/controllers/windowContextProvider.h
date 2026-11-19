@@ -3,6 +3,7 @@
 
 #include <GLFW/glfw3.h>
 #include <functional>
+#include <vector>
 
 #include "../models/position.h"
 
@@ -10,6 +11,9 @@ class WindowContextProvider
 {
 private:
     static WindowContextProvider* _instance;
+    static std::vector<std::function<void(GLFWwindow*, double, double)>> _callbacks;
+    static bool _isListeningToScroll;
+
     GLFWwindow* _window;
 public:
     WindowContextProvider(GLFWwindow* window);
@@ -20,7 +24,7 @@ public:
     void shouldClose(bool value);
 
     // Inputs
-    void setScrollCallback(GLFWscrollfun callback);
+    void addScrollCallback(std::function<void(GLFWwindow*, double, double)> callback);
 };
 
 #endif

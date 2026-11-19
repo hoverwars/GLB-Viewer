@@ -22,6 +22,7 @@ public:
     static NodeHandler* getInstance();
     void loadNodes(GlbFile* baseFile);
     vector<Node*> getNodes();
+
     ~NodeHandler();
 };
 
