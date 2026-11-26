@@ -25,4 +25,14 @@ public:
     Vector3dBufferView(unsigned char* bytes, unsigned long length);
 };
 
+template <typename T>
+class Vector2dBufferView : public BufferView<glm::vec2, T>
+{
+private:
+    virtual glm::vec2 buildContainer(T values[], unsigned __int8 length);
+
+public:
+    Vector2dBufferView(unsigned char* bytes, unsigned long length);
+};
+
 #endif

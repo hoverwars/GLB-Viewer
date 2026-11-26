@@ -9,7 +9,6 @@ NodeHandler* NodeHandler::_instance = nullptr;
 NodeHandler::NodeHandler()
 {
     _nodes = vector<Node*>();
-    //_models = vector<Model*>();
 }
 
 NodeHandler::~NodeHandler()

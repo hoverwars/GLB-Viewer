@@ -140,13 +140,15 @@ void GlbFile::parseMeshes()
         vector<MeshPart*> meshParts;
         for (json meshPartDesc : meshDesc["primitives"])
         {
-            ABufferView* indicesBuffer = _buffers[meshPartDesc.value("indices", -1)];
-            ABufferView* verticesBuffer = _buffers[meshPartDesc["attributes"].value("POSITION", -1)];
+            ABufferView* indicesBuffer = meshPartDesc.value("indices", -1) == -1 ? nullptr : _buffers[meshPartDesc.value("indices", -1)];
+            ABufferView* verticesBuffer = meshPartDesc["attributes"].value("POSITION", -1) == -1 ? nullptr : _buffers[meshPartDesc["attributes"].value("POSITION", -1)];
+            ABufferView* textureBuffer = meshPartDesc["attributes"].value("TEXCOORD_0", -1) == -1 ? nullptr : _buffers[meshPartDesc["attributes"].value("TEXCOORD_0", -1)];
         
             // Safe cast here, because an error would mean that the file is malformed
             meshParts.push_back(new MeshPart(
-                (Vector3dBufferView<float>*) verticesBuffer,
-                (ScalarBufferView<unsigned short>*) indicesBuffer
+                verticesBuffer == nullptr ? nullptr : (Vector3dBufferView<float>*) verticesBuffer,
+                indicesBuffer == nullptr ? nullptr : (ScalarBufferView<unsigned short>*) indicesBuffer,
+                textureBuffer == nullptr ? nullptr : (Vector2dBufferView<float>*) textureBuffer
             ));
         }
 
@@ -179,6 +181,19 @@ ABufferView* GlbFile::createBuffer(RawBufferView* rawBuffer, int componentType, 
             case 5123: return new Vector3dBufferView<unsigned short>(rawBuffer->binary, rawBuffer->size);
             case 5125: return new Vector3dBufferView<unsigned int>(rawBuffer->binary, rawBuffer->size);
             case 5126: return new Vector3dBufferView<float>(rawBuffer->binary, rawBuffer->size);
+            default: throw runtime_error(format("Invalid component type provided: {}", componentType));
+        }
+    }
+    else if (type == "VEC2")
+    {
+        switch (componentType)
+        {
+            case 5120: return new Vector2dBufferView<char>(rawBuffer->binary, rawBuffer->size);
+            case 5121: return new Vector2dBufferView<unsigned char>(rawBuffer->binary, rawBuffer->size);
+            case 5122: return new Vector2dBufferView<short>(rawBuffer->binary, rawBuffer->size);
+            case 5123: return new Vector2dBufferView<unsigned short>(rawBuffer->binary, rawBuffer->size);
+            case 5125: return new Vector2dBufferView<unsigned int>(rawBuffer->binary, rawBuffer->size);
+            case 5126: return new Vector2dBufferView<float>(rawBuffer->binary, rawBuffer->size);
             default: throw runtime_error(format("Invalid component type provided: {}", componentType));
         }
     }

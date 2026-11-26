@@ -1,9 +1,10 @@
 #include "meshPart.h"
 
-MeshPart::MeshPart(Vector3dBufferView<float>* vertices, ScalarBufferView<unsigned short>* indices)
+MeshPart::MeshPart(Vector3dBufferView<float>* vertices, ScalarBufferView<unsigned short>* indices, Vector2dBufferView<float>* texture)
 {
     _vertices = vertices;
     _indices = indices;
+    _texture = texture;
 }
 
 Vector3dBufferView<float>* MeshPart::getVertices()
@@ -14,4 +15,9 @@ Vector3dBufferView<float>* MeshPart::getVertices()
 ScalarBufferView<unsigned short>* MeshPart::getIndices()
 {
     return _indices;
+}
+
+Vector2dBufferView<float>* MeshPart::getTexture()
+{
+    return _texture;
 }
