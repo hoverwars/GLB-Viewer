@@ -1,7 +1,8 @@
 #ifndef DARK_STYLE_H
 #define DARK_STYLE_H
 
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
+#include <glm/glm.hpp>
 
 extern const ImVec4& primaryColor;
 extern const ImVec4& primaryBgColor;

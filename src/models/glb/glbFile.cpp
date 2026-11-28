@@ -6,6 +6,8 @@
 #include "mesh.h"
 #include "buffer/bufferViewImplementations.h"
 #include "../../utils/logs.h"
+#include "../../utils/darkStyle.h"
+#include "../../utils/convert.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -149,7 +151,7 @@ void GlbFile::parseMeshes()
             ABufferView* indicesBuffer = meshPartDesc.value("indices", -1) == -1 ? nullptr : _buffers[meshPartDesc.value("indices", -1)];
             ABufferView* verticesBuffer = meshPartDesc["attributes"].value("POSITION", -1) == -1 ? nullptr : _buffers[meshPartDesc["attributes"].value("POSITION", -1)];
             ABufferView* textureBuffer = meshPartDesc["attributes"].value("TEXCOORD_0", -1) == -1 ? nullptr : _buffers[meshPartDesc["attributes"].value("TEXCOORD_0", -1)];
-            int materialId = meshPartDesc["attributes"].value("material", -1); 
+            int materialId = meshPartDesc.value("material", -1); 
         
             // Safe cast here, because an error would mean that the file is malformed
             meshParts.push_back(new MeshPart(
@@ -173,15 +175,19 @@ void GlbFile::parseMaterials()
         bool doubleSided = materialDesc.value("doubleSided", false); 
 
         if (!materialDesc.contains("pbrMetallicRoughness"))
-            material = new Material(name, doubleSided);
+        {
+            material = new Material(name, doubleSided);   
+        }
         else
+        {
             material = new Material(
                 name, 
                 doubleSided,
-                materialDesc["pbrMetallicRoughness"].value<vector<float>>("baseColorFactor", { 1.0, 1.0, 1.0, 1.0 }),
+                toGlmVector(materialDesc["pbrMetallicRoughness"].value<vector<float>>("baseColorFactor", { shaderFillColor.x, shaderFillColor.y, shaderFillColor.z, shaderFillColor.z })),
                 materialDesc["pbrMetallicRoughness"].value("metallicFactor", 1.0f),
                 materialDesc["pbrMetallicRoughness"].value("roughnessFactor", 1.0f)
             );
+        }
 
         _materials.push_back(material);
     }

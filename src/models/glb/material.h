@@ -2,7 +2,7 @@
 #define MATERIAL_H
 
 #include <string>
-#include <vector>
+#include <glm/glm.hpp>
 
 using namespace std;
 
@@ -14,16 +14,17 @@ private:
     bool _textureBased;
 
     // Base PBR data, from the GLTF file
-    float _pbrBaseColorFactor[4];
+    glm::vec4 _pbrBaseColor;
     float _pbrMetallicFactor;
     float _pbrRoughnessFactor;
 
 
 public:
     Material(string name, bool doubleSided);
-    Material(string name, bool doubleSided, vector<float> pbrBaseColorFactor, float pbrMetallicFactor, float pbrRoughnessFactor);
+    Material(string name, bool doubleSided, glm::vec4 pbrBaseColorFactor, float pbrMetallicFactor, float pbrRoughnessFactor);
 
     float getPbrRoughnessFactor();
+    glm::vec4 getPbrBaseColor();
 };
 
 #endif

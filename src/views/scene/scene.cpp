@@ -169,7 +169,7 @@ void Scene::renderGrid()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    glUniform3f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z);
+    glUniform4f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z, 1.0f);
     glDrawArrays(GL_LINES, 0, _grid.size());
     glBindVertexArray(0);
 
@@ -184,7 +184,7 @@ void Scene::renderGrid()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    glUniform3f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z);
+    glUniform4f(_shader->getUniformLocation("inputColor"), shaderLineColor.x, shaderLineColor.y, shaderLineColor.z, 1.0f);
     glDrawArrays(GL_LINES, 0, _subGrid.size());
     glBindVertexArray(0);
 
@@ -233,14 +233,23 @@ void Scene::renderNode(Node* node)
             glEnableVertexAttribArray(0);  
                         
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glUniform3f(_shader->getUniformLocation("inputColor"), shaderFillColor.x, shaderFillColor.y, shaderFillColor.z);
+
+            Material* material = part->getMaterial();
+            glUniform4f(
+                _shader->getUniformLocation("inputColor"), 
+                material == nullptr ? shaderFillColor.x : material->getPbrBaseColor().x, 
+                material == nullptr ? shaderFillColor.y : material->getPbrBaseColor().y, 
+                material == nullptr ? shaderFillColor.z : material->getPbrBaseColor().z,
+                material == nullptr ? 1.0f : material->getPbrBaseColor().w
+            );
+
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
             
             if (_displayLines)
             {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 ImVec4 lineColor = node->isSelected() ? shaderSelectedLineColor : shaderLineColor;
-                glUniform3f(_shader->getUniformLocation("inputColor"), lineColor.x, lineColor.y, lineColor.z);
+                glUniform4f(_shader->getUniformLocation("inputColor"), lineColor.x, lineColor.y, lineColor.z, 1.0f);
                 glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
             }
 
