@@ -7,6 +7,7 @@
 #include "buffer/bufferView.h"
 #include "mesh.h"
 #include "node.h"
+#include "material.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -23,6 +24,7 @@ private:
     json _structure;
     vector<ABufferView*> _buffers;
     vector<Mesh*> _meshes;
+    vector<Material*> _materials;
 
     vector<RawBufferView*> _rawBuffers; // Internal variable used to keep raw buffer data while we need it.
 
@@ -32,6 +34,7 @@ private:
     void parseRawBuffers(unsigned char* binary);
     void parseAccessors(); // Convert raw buffers to actual buffers understood by the application.
     void parseMeshes();
+    void parseMaterials();
     ABufferView* createBuffer(RawBufferView* rawBuffer, int componentType, string type);
 
 public:

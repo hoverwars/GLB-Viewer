@@ -34,6 +34,11 @@ GlbFile::~GlbFile()
         delete mesh;
     }
 
+    for (Material* mat : _materials)
+    {
+        delete mat;
+    }
+
     // _rawBuffer yet cleared
 }
 
@@ -87,6 +92,7 @@ void GlbFile::parseBinary(unsigned char* binary, unsigned int length)
 {
     parseRawBuffers(binary);
     parseAccessors();
+    parseMaterials();
     parseMeshes();
 
     for (RawBufferView* rawBuffer : _rawBuffers)
@@ -143,16 +149,41 @@ void GlbFile::parseMeshes()
             ABufferView* indicesBuffer = meshPartDesc.value("indices", -1) == -1 ? nullptr : _buffers[meshPartDesc.value("indices", -1)];
             ABufferView* verticesBuffer = meshPartDesc["attributes"].value("POSITION", -1) == -1 ? nullptr : _buffers[meshPartDesc["attributes"].value("POSITION", -1)];
             ABufferView* textureBuffer = meshPartDesc["attributes"].value("TEXCOORD_0", -1) == -1 ? nullptr : _buffers[meshPartDesc["attributes"].value("TEXCOORD_0", -1)];
+            int materialId = meshPartDesc["attributes"].value("material", -1); 
         
             // Safe cast here, because an error would mean that the file is malformed
             meshParts.push_back(new MeshPart(
                 verticesBuffer == nullptr ? nullptr : (Vector3dBufferView<float>*) verticesBuffer,
                 indicesBuffer == nullptr ? nullptr : (ScalarBufferView<unsigned short>*) indicesBuffer,
-                textureBuffer == nullptr ? nullptr : (Vector2dBufferView<float>*) textureBuffer
+                textureBuffer == nullptr ? nullptr : (Vector2dBufferView<float>*) textureBuffer,
+                materialId == -1 ? nullptr : _materials[materialId]
             ));
         }
 
         _meshes.push_back(new Mesh(meshDesc.value("name", ""), meshParts));
+    }
+}
+
+void GlbFile::parseMaterials()
+{
+    for (json materialDesc : _structure["materials"])
+    {  
+        Material* material = nullptr;
+        string name = materialDesc.value("name", "default_material_name");
+        bool doubleSided = materialDesc.value("doubleSided", false); 
+
+        if (!materialDesc.contains("pbrMetallicRoughness"))
+            material = new Material(name, doubleSided);
+        else
+            material = new Material(
+                name, 
+                doubleSided,
+                materialDesc["pbrMetallicRoughness"].value<vector<float>>("baseColorFactor", { 1.0, 1.0, 1.0, 1.0 }),
+                materialDesc["pbrMetallicRoughness"].value("metallicFactor", 1.0f),
+                materialDesc["pbrMetallicRoughness"].value("roughnessFactor", 1.0f)
+            );
+
+        _materials.push_back(material);
     }
 }
 
